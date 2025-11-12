@@ -718,7 +718,106 @@ export default function CreatePostPage() {
 
 ---
 
-## Opgave 4.12: Eksperimenter og Lær Ved at Prøve
+## Opgave 4.11: Slet Alle CSS Module Filer
+
+**Nu hvor alle komponenter og sider bruger Tailwind, er det tid til oprydning:**
+
+**1. Tjek at alt fungerer:**
+
+- Test hele applikationen
+- Gennemgå alle sider
+- Verificer at styling ser korrekt ud
+
+**2. Slet CSS Module filer:**
+
+```bash
+# I terminal, slet alle .module.css filer:
+rm components/*.module.css
+rm app/**/*.module.css
+```
+
+Eller slet dem manuelt:
+
+- `components/Nav.module.css`
+- `components/PostCard.module.css`
+- `components/UserAvatar.module.css`
+- `components/FormPost.module.css`
+- `components/DeletePostButton.module.css`
+- Osv.
+
+**3. Fjern CSS Module imports:**
+
+Gennemgå alle komponenter og slet linjer som:
+
+```javascript
+import styles from "./Nav.module.css"; // ❌ SLET DENNE LINJE
+```
+
+**4. Verificer at projektet stadig bygger:**
+
+```bash
+npm run build
+```
+
+Hvis der er fejl, har du måske glemt at migrere en komponent!
+
+**5. Commit dine ændringer:**
+
+```bash
+git add .
+git commit -m "Migrated from CSS Modules to Tailwind CSS"
+```
+
+---
+
+## Opgave 4.12: Tilføj Forbedringer
+
+**Nu hvor du har Tailwind, tilføj forbedringer:**
+
+1. **Hover effects på cards:**
+
+   ```javascript
+   className = "hover:scale-105 hover:shadow-xl transition-all duration-200";
+   ```
+
+2. **Loading states:**
+
+   ```javascript
+   className = "animate-pulse bg-gray-200 h-64 rounded-lg";
+   ```
+
+3. **Focus states på links:**
+
+   ```javascript
+   className = "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2";
+   ```
+
+4. **Responsive spacing:**
+
+   ```javascript
+   className = "p-4 md:p-6 lg:p-8";
+   // Mere padding på større skærme
+   ```
+
+5. **Dark mode ready:**
+   ```javascript
+   className = "bg-white dark:bg-gray-800 text-gray-900 dark:text-white";
+   ```
+
+---
+
+## Reflektion
+
+- Hvilke forbedringer tilføjede du?
+- Hvordan påvirker Tailwind din udviklingshastighed?
+- Hvad er fordele og ulemper ved utility-first CSS?
+- Hvordan var det at slippe af med alle CSS Module filerne?
+- Hvad er fordele/ulemper ved Tailwind vs CSS Modules?
+- Hvornår ville du bruge Tailwind? Hvornår CSS Modules?
+
+---
+
+## Opgave 4.13: Eksperimenter og Lær Ved at Prøve (ekstra)
 
 **Nu har du migreret hele appen - tid til at eksperimentere! 🔬**
 
@@ -791,9 +890,82 @@ Design en ny komponent fra bunden med kun Tailwind:
 
 ---
 
-## Opgave 4.13: Redesign Challenge (ekstra)
+## Opgave 4.13: Eksperimenter og Lær Ved at Prøve (ekstra)
 
-**Ultimate udfordring: Redesign hele appen!**
+**Nu har du migreret hele appen - tid til at eksperimentere! 🔬**
+
+Tailwind lærer man bedst ved at prøve sig frem. Lav følgende eksperimenter:
+
+**Eksperiment 1: Farve-variationer**
+
+Tag en komponent (f.eks. en knap) og prøv forskellige farve-kombinationer:
+
+- Prøv `bg-blue-500`, `bg-blue-600`, `bg-blue-700` - se forskellen
+- Prøv `bg-red-500`, `bg-green-500`, `bg-purple-500`
+- Kombiner med `hover:bg-[farve]-700`
+
+**Hvad lærte du om farve-nuancer?**
+
+**Eksperiment 2: Spacing**
+
+Tag PostCard komponenten:
+
+- Prøv at ændre `p-6` til `p-2`, `p-4`, `p-8`, `p-12`
+- Prøv at ændre `gap-3` til `gap-1`, `gap-6`, `gap-10`
+- Prøv at ændre `mb-4` til `mb-2`, `mb-8`
+
+**Hvad er den rigtige mængde spacing? Hvorfor?**
+
+**Eksperiment 3: Responsive design**
+
+Tag posts liste siden:
+
+- Prøv `grid-cols-1 md:grid-cols-2`
+- Prøv `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
+- Prøv `grid-cols-2 md:grid-cols-3 lg:grid-cols-4`
+
+**Resize browservinduet - hvad sker der? Hvilken løsning er bedst?**
+
+**Eksperiment 4: Hover effekter**
+
+Tilføj kreative hover effekter til dine cards:
+
+```javascript
+// Prøv disse kombinationer:
+className = "hover:scale-105 transition-transform";
+className = "hover:shadow-2xl transition-shadow";
+className = "hover:-translate-y-1 hover:shadow-xl transition-all";
+className = "hover:rotate-1 transition-transform";
+```
+
+**Hvilke effekter virker bedst? Hvilke er for meget?**
+
+**Eksperiment 5: Lav en custom komponent**
+
+Design en ny komponent fra bunden med kun Tailwind:
+
+- En "Featured Post" card med større billede
+- En "User Stats" card med tal og ikoner
+- En "Loading Skeleton" komponent
+
+**Tvang dig selv til IKKE at se på eksisterende kode - brug kun:**
+
+- Tailwind docs
+- VS Code IntelliSense
+- Din hukommelse fra tidligere opgaver
+
+**Refleksion:**
+
+- Hvilke classes husker du uden at slå op?
+- Hvilke classes skal du stadig google?
+- Hvad er nemmere med Tailwind vs CSS Modules?
+- Hvad er sværere?
+
+---
+
+## Opgave 4.14: Redesign Challenge (ekstra)
+
+**Ultimate udfordring: Redesign hele appen! 🎨**
 
 Nu hvor du kan Tailwind, redesign hele din post app til at se anderledes ud:
 
@@ -839,100 +1011,3 @@ Tag screenshots før/efter og del med klassen!
 - At arbejde uden færdig guide?
 
 ---
-
-## Opgave 4.14: Slet Alle CSS Module Filer
-
-**Nu hvor alle komponenter og sider bruger Tailwind, er det tid til oprydning:**
-
-**1. Tjek at alt fungerer:**
-
-- Test hele applikationen
-- Gennemgå alle sider
-- Verificer at styling ser korrekt ud
-
-**2. Slet CSS Module filer:**
-
-```bash
-# I terminal, slet alle .module.css filer:
-rm components/*.module.css
-rm app/**/*.module.css
-```
-
-Eller slet dem manuelt:
-
-- `components/Nav.module.css`
-- `components/PostCard.module.css`
-- `components/UserAvatar.module.css`
-- `components/FormPost.module.css`
-- `components/DeletePostButton.module.css`
-- Osv.
-
-**3. Fjern CSS Module imports:**
-
-Gennemgå alle komponenter og slet linjer som:
-
-```javascript
-import styles from "./Nav.module.css"; // ❌ SLET DENNE LINJE
-```
-
-**4. Verificer at projektet stadig bygger:**
-
-```bash
-npm run build
-```
-
-Hvis der er fejl, har du måske glemt at migrere en komponent!
-
-**5. Commit dine ændringer:**
-
-```bash
-git add .
-git commit -m "Migrated from CSS Modules to Tailwind CSS"
-```
-
----
-
-## Opgave 4.15: Tilføj Forbedringer
-
-**Nu hvor du har Tailwind, tilføj forbedringer:**
-
-1. **Hover effects på cards:**
-
-   ```javascript
-   className = "hover:scale-105 hover:shadow-xl transition-all duration-200";
-   ```
-
-2. **Loading states:**
-
-   ```javascript
-   className = "animate-pulse bg-gray-200 h-64 rounded-lg";
-   ```
-
-3. **Focus states på links:**
-
-   ```javascript
-   className = "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2";
-   ```
-
-4. **Responsive spacing:**
-
-   ```javascript
-   className = "p-4 md:p-6 lg:p-8";
-   // Mere padding på større skærme
-   ```
-
-5. **Dark mode ready:**
-   ```javascript
-   className = "bg-white dark:bg-gray-800 text-gray-900 dark:text-white";
-   ```
-
----
-
-## Reflektion
-
-- Hvilke forbedringer tilføjede du?
-- Hvordan påvirker Tailwind din udviklingshastighed?
-- Hvad er fordele og ulemper ved utility-first CSS?
-- Hvordan var det at slippe af med alle CSS Module filerne?
-- Hvad er fordele/ulemper ved Tailwind vs CSS Modules?
-- Hvornår ville du bruge Tailwind? Hvornår CSS Modules?
