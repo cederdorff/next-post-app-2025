@@ -1,5 +1,5 @@
 // Client Component - needed for useState to manage image preview
-"use client";
+"use client"; // Mark as client component
 
 import Image from "next/image";
 import { useState } from "react";

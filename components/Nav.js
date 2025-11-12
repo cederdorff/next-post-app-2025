@@ -1,5 +1,5 @@
 // Client Component - needed for usePathname hook
-"use client";
+"use client"; // Mark as client component
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";

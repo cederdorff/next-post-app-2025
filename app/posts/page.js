@@ -2,9 +2,10 @@ import PostCard from "@/components/PostCard";
 import Link from "next/link";
 import styles from "./page.module.css";
 
+// Server Component
 export default async function Home() {
   const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
-  const response = await fetch(url); // Next.js 15+ requires explicit caching
+  const response = await fetch(url);
   const dataObject = await response.json();
 
   const posts = Object.keys(dataObject).map(key => ({

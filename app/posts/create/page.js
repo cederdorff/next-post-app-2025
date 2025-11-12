@@ -5,19 +5,19 @@ import styles from "./page.module.css";
 export default function CreatePage() {
   const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`; // Get Firebase Realtime Database URL
 
+  // Server Action to handle post creation
   async function createPost(formData) {
-    "use server";
+    "use server"; // Mark as server action - runs on server only
     const caption = formData.get("caption");
     const image = formData.get("image");
 
     const response = await fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         caption,
         image,
         uid: "OPPe5jue2Ghxx3mtnxevB5FwCYe2", // TODO: Replace with actual user ID from auth
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString() // Add creation timestamp
       })
     });
 

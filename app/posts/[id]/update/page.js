@@ -8,14 +8,14 @@ export default async function UpdatePage({ params }) {
   const response = await fetch(url);
   const post = await response.json();
 
+  // Server Action to handle post update
   async function updatePost(formData) {
-    "use server";
+    "use server"; // Mark as server action - runs on server only
     const caption = formData.get("caption");
     const image = formData.get("image");
 
     const response = await fetch(url, {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ caption, image })
     });
 
