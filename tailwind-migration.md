@@ -70,6 +70,23 @@ Når du skriver `className="bg-` skulle du nu se autocomplete suggestions med fa
 
 Tailwind er et "utility-first" CSS framework. I stedet for at skrive custom CSS, bruger du små, genbrugelige CSS klasser direkte i din JSX.
 
+**Quick Reference - De 10 mest brugte classes:**
+
+1. `flex` - Layout med flexbox
+2. `p-4` - Padding 16px
+3. `m-4` - Margin 16px
+4. `bg-white` - Hvid baggrund
+5. `text-gray-900` - Mørk tekst
+6. `rounded-lg` - Afrundede hjørner
+7. `shadow-md` - Mellemhård skygge
+8. `hover:bg-blue-600` - Ændring ved hover
+9. `w-full` - Fuld bredde
+10. `gap-4` - Mellemrum mellem elementer
+
+**Med disse 10 classes kan du style 80% af din app! 🎨**
+
+---
+
 **Eksempel - Fra CSS Modules til Tailwind:**
 
 ```javascript
@@ -114,17 +131,24 @@ import styles from "./Nav.module.css";
 - `p-4` = padding: 1rem (16px)
 - `px-4` = padding left og right: 1rem
 - `py-4` = padding top og bottom: 1rem
+- `pt-4` = padding-top: 1rem
+- `pb-4` = padding-bottom: 1rem
 - `m-4` = margin: 1rem
-- `mt-4` = margin-top: 1rem
-- `gap-4` = gap: 1rem (i flex/grid)
+- `mx-auto` = margin left og right: auto (bruges til at centrere)
+- `gap-4` = gap: 1rem (mellemrum mellem flex/grid børn)
+- `space-y-4` = margin-top: 1rem mellem alle børn (vertical spacing)
 
-**Skala:** `0, 1, 2, 3, 4, 5, 6, 8, 10, 12, 16, 20, 24, 32, 40, 48, 64` osv.
+**Skala (de mest brugte):**
 
-- `p-0` = 0px
-- `p-1` = 0.25rem (4px)
-- `p-2` = 0.5rem (8px)
-- `p-4` = 1rem (16px)
-- `p-8` = 2rem (32px)
+- `0` = 0px
+- `1` = 0.25rem (4px) - meget lille
+- `2` = 0.5rem (8px) - lille
+- `4` = 1rem (16px) - ⭐ standard, meget brugt
+- `6` = 1.5rem (24px) - mellem
+- `8` = 2rem (32px) - stor
+- `12` = 3rem (48px) - meget stor
+
+**Tip:** Start med at bruge `4` og `8`, tilpas derefter efter behov!
 
 **Farver:**
 
@@ -132,7 +156,20 @@ import styles from "./Nav.module.css";
 - `text-white` = hvid tekst
 - `text-gray-600` = grå tekst
 - Farver: `gray, red, blue, green, yellow, purple` osv.
-- Nuancer: `50, 100, 200, 300, 400, 500, 600, 700, 800, 900`
+- Nuancer: `50` (meget lys) → `500` (mellem) → `900` (meget mørk)
+
+**Tommelfingerregel for nuancer:**
+
+- `50-200` = Lyse farver (baggrunde, subtle highlights)
+- `300-500` = Mellem farver (borders, sekundære elementer)
+- `600-900` = Mørke farver (primær tekst, knapper, vigtige elementer)
+
+**Eksempel:**
+
+- `bg-blue-500` = Medium blå knap
+- `hover:bg-blue-600` = Lidt mørkere ved hover
+- `text-gray-900` = Næsten sort tekst (bedre end pure black!)
+- `border-gray-300` = Lys grå border
 
 **Typography:**
 
@@ -176,11 +213,30 @@ import styles from "./Nav.module.css";
 }
 ```
 
-**Svar:**
+<details>
+<summary><strong>👉 Klik her for at se svaret</strong></summary>
 
 ```javascript
 <div className="p-6 mb-4 bg-white rounded-lg shadow">
 ```
+
+**Forklaring:**
+
+- `p-6` = padding: 1.5rem
+- `mb-4` = margin-bottom: 1rem
+- `bg-white` = background-color: white
+- `rounded-lg` = border-radius: 0.5rem
+- `shadow` = box-shadow (Tailwind's standard skygge)
+
+</details>
+
+**Almindelige begynder-fejl at undgå:**
+
+- ❌ `className="p4"` → ✅ `className="p-4"` (husk bindestreg!)
+- ❌ `className="padding-4"` → ✅ `className="p-4"` (brug forkortelsen)
+- ❌ Multiple classNames: `className="p-4" className="bg-white"`
+  → ✅ `className="p-4 bg-white"` (alle classes i én string)
+- ❌ `class="p-4"` → ✅ `className="p-4"` (React bruger className!)
 
 **Hjælperessourcer:**
 
@@ -191,6 +247,23 @@ import styles from "./Nav.module.css";
 ---
 
 ## Opgave 4.3: Migrer Nav Komponenten
+
+**VIGTIG INSTRUKTION: Prøv først selv! 🎯**
+
+Før du scroller ned til guiden, prøv at migrere Nav komponenten selv:
+
+1. Åbn `components/Nav.js` og `components/Nav.module.css`
+2. Se på CSS reglerne - hvad gør de?
+3. Brug Opgave 4.2 som reference og prøv at oversætte CSS til Tailwind
+4. Brug VS Code Tailwind IntelliSense til at finde de rigtige classes
+5. Test i browseren
+
+**Kun hvis du sidder fast i 10+ minutter, scroll ned til guiden! 👇**
+
+---
+
+<details>
+<summary><strong>📖 Klik her for step-by-step guide (brug kun hvis nødvendigt)</strong></summary>
 
 **Step-by-step guide til at migrere `Nav` komponenten:**
 
@@ -265,15 +338,38 @@ Når alt virker: slet `Nav.module.css` og importer i `Nav.js`
 - ❌ Glemme at teste hover states
 - ❌ Ikke tjekke responsive design
 
+</details>
+
 ---
 
 ## Opgave 4.4: Migrer UserAvatar Komponenten
 
-**Nu er det din tur!**
+**Nu er det din tur - UDEN guide! 💪**
 
-Migrer `UserAvatar` komponenten til Tailwind.
+Migrer `UserAvatar` komponenten til Tailwind helt selv.
 
-**Hjælp til image styling:**
+**Tilladt hjælp:**
+
+- Opgave 4.2 (utility classes reference)
+- Tailwind dokumentation: https://tailwindcss.com/docs
+- VS Code IntelliSense
+
+**IKKE tilladt:**
+
+- At scrolle ned til "Hjælp" sektionen før du har prøvet i minimum 15 minutter
+
+**Checklist når du er færdig:**
+
+- [ ] Billedet er cirkulært
+- [ ] Billedet har en border
+- [ ] Billedet fylder den rigtige størrelse
+- [ ] CSS Module import er fjernet
+- [ ] Det ser ud som før i browseren
+
+---
+
+<details>
+<summary><strong>🆘 Hjælp (kun hvis du virkelig sidder fast efter 15+ minutter)</strong></summary>
 
 ```javascript
 // Cirkulært billede med border:
@@ -286,7 +382,7 @@ Migrer `UserAvatar` komponenten til Tailwind.
 - `rounded-full` = perfekt cirkel
 - `border-2` = 2px border
 - `border-gray-300` = lys grå border farve
-- `object-cover` = beskærer billede korrekt
+- `object-cover` = beskærer billede korrekt (sikrer det ikke strækkes)
 
 **Størrelser til avatar:**
 
@@ -295,9 +391,50 @@ Migrer `UserAvatar` komponenten til Tailwind.
 - Large: `w-16 h-16` (64px)
 - Extra large: `w-24 h-24` (96px)
 
+</details>
+
 ---
 
 ## Opgave 4.5: Migrer PostCard Komponenten
+
+**Udfordring: Del komponenten op i små dele! 🧩**
+
+PostCard er den mest komplekse komponent indtil videre. I stedet for at give dig en komplet guide, skal du tænke systematisk:
+
+**Din strategi:**
+
+1. **Opdel komponenten mentalt:**
+
+   - Container (article)
+   - Header med bruger info (avatar + navn + titel)
+   - Post billede
+   - Caption tekst
+   - Action buttons (View, Update, Delete)
+
+2. **Migrer ét element ad gangen:**
+
+   - Start med container
+   - Test i browseren
+   - Fortsæt med næste element
+   - Test igen
+
+3. **Brug "Inspicér Element" i browseren:**
+   - Højreklik på PostCard → Inspicér
+   - Se de nuværende CSS regler
+   - Oversæt til Tailwind utilities
+
+**Tilladt hjælp:**
+
+- Du må se på Nav komponenten som inspiration
+- Du må bruge Tailwind docs
+- Du må bruge VS Code IntelliSense
+
+**Når du er færdig, sammenlign med guiden nedenfor - er din løsning bedre eller dårligere? Hvorfor?**
+
+---
+
+<details>
+<summary><strong>📋 Guide til sammenligning (åbn EFTER du har prøvet selv)</strong></summary>
 
 **PostCard er mere kompleks - tag det i små skridt:**
 
@@ -340,6 +477,8 @@ Migrer `UserAvatar` komponenten til Tailwind.
 ```
 
 **Tip:** Brug `flex flex-col` for at stable elementer vertikalt!
+
+</details>
 
 ---
 
@@ -579,7 +718,129 @@ export default function CreatePostPage() {
 
 ---
 
-## Opgave 4.11: Slet Alle CSS Module Filer
+## Opgave 4.12: Eksperimenter og Lær Ved at Prøve
+
+**Nu har du migreret hele appen - tid til at eksperimentere! 🔬**
+
+Tailwind lærer man bedst ved at prøve sig frem. Lav følgende eksperimenter:
+
+**Eksperiment 1: Farve-variationer**
+
+Tag en komponent (f.eks. en knap) og prøv forskellige farve-kombinationer:
+
+- Prøv `bg-blue-500`, `bg-blue-600`, `bg-blue-700` - se forskellen
+- Prøv `bg-red-500`, `bg-green-500`, `bg-purple-500`
+- Kombiner med `hover:bg-[farve]-700`
+
+**Hvad lærte du om farve-nuancer?**
+
+**Eksperiment 2: Spacing**
+
+Tag PostCard komponenten:
+
+- Prøv at ændre `p-6` til `p-2`, `p-4`, `p-8`, `p-12`
+- Prøv at ændre `gap-3` til `gap-1`, `gap-6`, `gap-10`
+- Prøv at ændre `mb-4` til `mb-2`, `mb-8`
+
+**Hvad er den rigtige mængde spacing? Hvorfor?**
+
+**Eksperiment 3: Responsive design**
+
+Tag posts liste siden:
+
+- Prøv `grid-cols-1 md:grid-cols-2`
+- Prøv `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
+- Prøv `grid-cols-2 md:grid-cols-3 lg:grid-cols-4`
+
+**Resize browservinduet - hvad sker der? Hvilken løsning er bedst?**
+
+**Eksperiment 4: Hover effekter**
+
+Tilføj kreative hover effekter til dine cards:
+
+```javascript
+// Prøv disse kombinationer:
+className = "hover:scale-105 transition-transform";
+className = "hover:shadow-2xl transition-shadow";
+className = "hover:-translate-y-1 hover:shadow-xl transition-all";
+className = "hover:rotate-1 transition-transform";
+```
+
+**Hvilke effekter virker bedst? Hvilke er for meget?**
+
+**Eksperiment 5: Lav en custom komponent**
+
+Design en ny komponent fra bunden med kun Tailwind:
+
+- En "Featured Post" card med større billede
+- En "User Stats" card med tal og ikoner
+- En "Loading Skeleton" komponent
+
+**Tvang dig selv til IKKE at se på eksisterende kode - brug kun:**
+
+- Tailwind docs
+- VS Code IntelliSense
+- Din hukommelse fra tidligere opgaver
+
+**Refleksion:**
+
+- Hvilke classes husker du uden at slå op?
+- Hvilke classes skal du stadig google?
+- Hvad er nemmere med Tailwind vs CSS Modules?
+- Hvad er sværere?
+
+---
+
+## Opgave 4.13: Redesign Challenge (ekstra)
+
+**Ultimate udfordring: Redesign hele appen!**
+
+Nu hvor du kan Tailwind, redesign hele din post app til at se anderledes ud:
+
+**Krav:**
+
+1. **Vælg et farve-tema:**
+
+   - Skift fra blå til en anden primær farve (grøn, lilla, rød, etc.)
+   - Brug forskellige nuancer konsistent
+
+2. **Eksperimenter med layout:**
+
+   - Skal posts være i cards eller liste-visning?
+   - Skal navbar være i toppen eller siden?
+   - Skal der være mere/mindre spacing?
+
+3. **Tilføj personlighed:**
+   - Animationer (hover effects, transitions)
+   - Afrundinger (skarpe hjørner vs afrundede)
+   - Skygger (ingen, subtile eller dramatiske)
+
+**Regler:**
+
+- ✅ Du MÅ ændre alt design
+- ✅ Du MÅ eksperimentere vildt
+- ❌ Du må IKKE bruge custom CSS (kun Tailwind classes)
+- ❌ Du må IKKE ødelægge funktionalitet
+
+**Inspiration:**
+
+- Se på https://dribbble.com for design inspiration
+- Se på https://tailwindui.com for komponent ideer
+- Tænk på apps du bruger dagligt - hvad kan du lære?
+
+**Del dit redesign:**
+
+Tag screenshots før/efter og del med klassen!
+
+**Hvad lærte du om:**
+
+- Tailwind's muligheder og begrænsninger?
+- Design beslutninger og deres konsekvenser?
+- At arbejde uden færdig guide?
+
+---
+
+## Opgave 4.14: Slet Alle CSS Module Filer
 
 **Nu hvor alle komponenter og sider bruger Tailwind, er det tid til oprydning:**
 
@@ -631,7 +892,7 @@ git commit -m "Migrated from CSS Modules to Tailwind CSS"
 
 ---
 
-## Opgave 4.12: Tilføj Forbedringer
+## Opgave 4.15: Tilføj Forbedringer
 
 **Nu hvor du har Tailwind, tilføj forbedringer:**
 
