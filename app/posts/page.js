@@ -14,11 +14,13 @@ export default async function Home() {
 
   return (
     <main className={styles.page}>
-      <section className={styles.grid}>
-        {posts.map(post => (
-          <PostCard key={post.id} post={post} />
-        ))}
-      </section>
+      <div className={styles.container}>
+        <section className={styles.grid}>
+          {posts.map(post => (
+            <PostCard key={post.id} post={post} />
+          ))}
+        </section>
+      </div>
     </main>
   );
 }
