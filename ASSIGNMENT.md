@@ -309,45 +309,69 @@ Nu skal du implementere den samme CRUD funktionalitet for users som allerede er 
 
 **Hjælp til Delete Funktionalitet:**
 
-Delete funktionaliteten i posts bruger en modal dialog for at bekræfte sletning. Dette pattern skal du også bruge for users:
+Delete funktionaliteten i posts bruger en modal dialog for at bekræfte sletning. Du skal implementere samme pattern for users:
 
-1. **DeletePostButton komponenten** (`components/DeletePostButton.js`):
+**Step 1: Analyser `DeletePostButton` komponenten** (`components/DeletePostButton.js`):
 
-   - Er en Client Component (`"use client"`) fordi den bruger `useState`
-   - Modtager en Server Action som prop (`deleteAction`)
-   - Viser en modal når brugeren klikker "Delete"
-   - Kalder Server Action kun hvis brugeren bekræfter i modalen
+- Er en Client Component (`"use client"`) fordi den bruger `useState`
+- Modtager en Server Action som prop (`deleteAction`)
+- Viser en modal når brugeren klikker "Delete"
+- Kalder Server Action kun hvis brugeren bekræfter i modalen
 
-2. **Sådan bruges den:**
+**Step 2: Forstå hvordan den bruges:**
 
-   ```javascript
-   // I app/posts/[id]/page.js (Server Component)
+```javascript
+// I app/posts/[id]/page.js (Server Component)
 
-   // 1. Definer Server Action i komponenten
-   async function deletePost() {
-     "use server";
-     // ... delete logic
-     redirect("/posts");
-   }
+// 1. Definer Server Action i komponenten
+async function deletePost() {
+  "use server";
+  // ... delete logic
+  redirect("/posts");
+}
 
-   // 2. Send Server Action til Client Component
-   <DeletePostButton deleteAction={deletePost} />;
-   ```
+// 2. Send Server Action til Client Component
+<DeletePostButton deleteAction={deletePost} />;
+```
 
-3. **For at bruge samme pattern til users:**
+**Step 3: Implementer `DeleteUserButton` for users:**
 
-   - **Option 1:** Genbrug `DeletePostButton` og omdøb til `DeleteButton` (mere generisk)
-   - **Option 2:** Opret `DeleteUserButton` med samme struktur
-   - Husk: Server Action defineres i Server Component (detail side)
-   - Modal komponenten håndterer bekræftelse før Server Action kaldes
+1. Opret `components/DeleteUserButton.js`
+2. Kopier strukturen fra `DeletePostButton.js`
+3. Tilpas tekster og styling efter behov
+4. Opret tilhørende CSS Module fil
+5. Brug komponenten i `app/users/[id]/page.js`
 
-4. **Nøglepunkter:**
-   - Modal forhindrer utilsigtet sletning
-   - Server Action kører kun på serveren (sikkerhed)
-   - Client Component bruges kun til UI interaktion (modal state)
-   - Efter sletning: `redirect("/users")` i Server Action
+**Nøglepunkter:**
 
-### Opgave 3.3: Komponent Genbrug
+- Modal forhindrer utilsigtet sletning
+- Server Action kører kun på serveren (sikkerhed)
+- Client Component bruges kun til UI interaktion (modal state)
+- Efter sletning: `redirect("/users")` i Server Action
+
+### Opgave 3.3: Refaktorer til Generisk Delete Komponent
+
+**Nu hvor du har implementeret både `DeletePostButton` og `DeleteUserButton`, kan du se at de er næsten identiske!**
+
+**Opgave:**
+
+1. Opret en generisk `DeleteButton` komponent (`components/DeleteButton.js`)
+2. Erstat både `DeletePostButton` og `DeleteUserButton` med den nye `DeleteButton`
+3. Overvej hvilke props der skal gøres konfigurerbare (f.eks. bekræftelsestekst)
+
+**Reflektion:**
+
+- Hvilken fordel giver det at have én generisk komponent i stedet for to næsten identiske?
+- Hvilke props blev nødvendige for at gøre komponenten generisk?
+- Hvad er ulemperne ved for tidlig abstraktion? (Hvad hvis du havde lavet den generiske først?)
+
+### Opgave 3.4: Andre Genbrugelige Komponenter
+
+**Reflektion:**
+
+- Hvilke andre komponenter kunne du genbruge fra posts implementeringen?
+- Hvor blev du nødt til at lave nye komponenter?
+- Hvordan kunne du forbedre genbrugeligheden yderligere?
 
 **Reflektion:**
 
