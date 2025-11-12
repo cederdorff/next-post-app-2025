@@ -62,12 +62,6 @@ a {
   padding: 20px 0;
 }
 
-@media (max-width: 600px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* Buttons */
 button,
 .btn {
