@@ -421,11 +421,11 @@ export default function Home() {
             className="px-6 py-3 rounded-lg font-medium bg-[#ededed] text-black transition-all hover:opacity-85 hover:-translate-y-0.5">
             Se Posts
           </Link>
-          <a
+          <Link
             href="/posts/create"
             className="px-6 py-3 rounded-lg font-medium border border-gray-700 transition-all hover:bg-[#1a1a1a]">
             Opret Post
-          </a>
+          </Link>
         </div>
       </main>
     </div>
