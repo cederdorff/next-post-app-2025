@@ -607,17 +607,16 @@ Selv om du har tilføjet `text-[#ededed]` til `h3` (user.name), kan det være at
 
 **Udfordring: Del komponenten op i små dele! 🧩**
 
-PostCard er den mest komplekse komponent indtil videre. I stedet for at give dig en komplet guide, skal du tænke systematisk:
+PostCard er en vigtig komponent i app'en. Den viser et post med bruger info, billede og caption.
 
 **Din strategi:**
 
 1. **Opdel komponenten mentalt:**
 
-   - Container (article)
-   - Header med bruger info (avatar + navn + titel)
+   - Container (article) med baggrund, padding, border-radius
+   - UserAvatar komponent (allerede migreret!)
    - Post billede
-   - Caption tekst
-   - Action buttons (View, Update, Delete)
+   - Caption tekst (h3)
 
 2. **Migrer ét element ad gangen:**
 
@@ -633,142 +632,173 @@ PostCard er den mest komplekse komponent indtil videre. I stedet for at give dig
 
 **Tilladt hjælp:**
 
-- Du må se på Nav komponenten som inspiration
+- Du må se på tidligere komponenter som inspiration
 - Du må bruge Tailwind docs
 - Du må bruge VS Code IntelliSense
+
+**Checklist når du er færdig:**
+
+- [ ] Card har mørk baggrund (lysere end page baggrund)
+- [ ] Card har afrundede hjørner og shadow
+- [ ] Hover effekt løfter card og gør shadow større
+- [ ] Billede fylder fuld bredde og har fast højde
+- [ ] Caption tekst er lys og læsbar
+- [ ] CSS Module import er fjernet
 
 **Når du er færdig, sammenlign med guiden nedenfor - er din løsning bedre eller dårligere? Hvorfor?**
 
 ---
 
 <details>
+<summary><strong>💡 Hints (hvis du sidder fast - åbn ét hint ad gangen)</strong></summary>
+
+**Hint 1: Container baggrund**
+
+- Du skal bruge en mørk grå farve som `bg-[#2a2a2a]` - ikke hvid!
+- Husk at page baggrunden er sort, så card skal være lysere for at skille sig ud
+
+**Hint 2: Shadow på mørk baggrund**
+
+- Standard Tailwind shadows (`shadow-sm`, `shadow-lg`) er for svage på mørk baggrund
+- Du skal bruge arbitrary values: `shadow-[0_2px_8px_rgba(0,0,0,0.3)]`
+- Bemærk den højere opacity (0.3) for at skyggen er synlig
+
+**Hint 3: Hover transform**
+
+- Brug `hover:-translate-y-1` til at løfte card
+- Kombiner med `hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]` for større shadow
+
+**Hint 4: Billede højde**
+
+- Brug arbitrary value `h-[250px]` for præcis 250px højde
+- Husk `object-cover` og `w-full`
+
+**Hint 5: Caption tekst farve**
+
+- Brug `text-[#ededed]` for lys, læsbar tekst på mørk baggrund
+- Ikke `text-black` eller `text-gray-900`!
+
+</details>
+
+---
+
+<details>
 <summary><strong>📋 Guide til sammenligning (åbn EFTER du har prøvet selv)</strong></summary>
 
-**PostCard er mere kompleks - tag det i små skridt:**
+**Først skal du se den originale CSS Module styling:**
 
-**Step 1: Container**
+```css
+/* PostCard.module.css */
+.postCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: var(--foreground);
+  transition: all 0.2s;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
 
-````javascript
-**📋 Guide til sammenligning (åbn EFTER du har prøvet selv)**
+.postCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
 
-**PostCard styling fra den faktiske implementation:**
+.postCardImage {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+}
 
-**Step 1: Container**
-
-```javascript
-**Step 1: Container**
-
-```javascript
-<article className="flex flex-col gap-3 p-5 rounded-xl bg-white transition-all cursor-pointer shadow-sm hover:-translate-y-1 hover:shadow-lg">
-````
-
-**Forklaring:**
-
-- `flex flex-col` = vertical layout med flexbox
-- `gap-3` = 12px mellemrum mellem elementer
-- `p-5` = 20px padding
-- `rounded-xl` = 12px border-radius
-- `shadow-sm` = subtil skygge: 0 2px 8px rgba(0,0,0,0.05)
-- `hover:-translate-y-1` = løft card 4px ved hover
-- `hover:shadow-lg` = større skygge ved hover
-
-**Step 2: Post billede**
-
-```javascript
-<img className="w-full h-[250px] object-cover rounded-lg" src={post.image} alt={post.caption} />
+.postCard h3 {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-top: 4px;
+  line-height: 1.4;
+}
 ```
 
-**Forklaring:**
-
-- `h-[250px]` = fast højde på 250px
-- `rounded-lg` = 8px border-radius på billedet
-
-**Step 3: Post titel**
+**FØR (med CSS Modules):**
 
 ```javascript
-<h3 className="text-base font-medium text-black mt-1 leading-snug">{post.caption}</h3>
+import Image from "next/image";
+import styles from "./PostCard.module.css";
+import UserAvatar from "./UserAvatar";
+
+export default function PostCard({ post }) {
+  return (
+    <article className={styles.postCard}>
+      <UserAvatar uid={post.uid} />
+      <Image src={post.image} alt={post.caption} className={styles.postCardImage} width={500} height={500} />
+      <h3>{post.caption}</h3>
+    </article>
+  );
+}
 ```
 
-**Forklaring:**
-
-- `text-base` = 16px font-size
-- `font-medium` = 500 font-weight
-- `leading-snug` = 1.4 line-height
-
-**Tip:** Simpel styling med hvid baggrund til cards på mørk page baggrund!
-
-````
-
-**Forklaring:**
-
-- `flex flex-col` = vertical layout med flexbox
-- `gap-3` = 12px mellemrum mellem elementer
-- `p-5` = 20px padding
-- `rounded-xl` = 12px border-radius
-- `shadow-sm` = subtil skygge: 0 2px 8px rgba(0,0,0,0.05)
-- `hover:-translate-y-1` = løft card 4px ved hover
-- `hover:shadow-lg` = større skygge ved hover
-
-**Step 2: Post billede**
+**EFTER (med Tailwind):**
 
 ```javascript
-<img className="w-full h-[250px] object-cover rounded-lg" src={post.image} alt={post.caption} />
+import Image from "next/image";
+import UserAvatar from "./UserAvatar";
+
+export default function PostCard({ post }) {
+  return (
+    <article className="flex flex-col gap-3 p-5 rounded-xl bg-[#2a2a2a] transition-all cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+      <UserAvatar uid={post.uid} />
+      <Image
+        src={post.image}
+        alt={post.caption}
+        className="w-full h-[250px] object-cover rounded-lg"
+        width={500}
+        height={500}
+      />
+      <h3 className="text-base font-medium text-[#ededed] mt-1 leading-relaxed">{post.caption}</h3>
+    </article>
+  );
+}
 ```
 
-**Forklaring:**
+**Forklaring af CSS → Tailwind mapping:**
 
-- `h-[250px]` = fast højde på 250px
-- `rounded-lg` = 8px border-radius på billedet
+| CSS Module                  | Tailwind Classes                                            | Forklaring                                                                           |
+| --------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `.postCard` container       | `flex flex-col gap-3 p-5 rounded-xl`                        | Vertikal layout, 12px gap, 20px padding, 12px border-radius                          |
+| `.postCard` baggrund        | `bg-[#2a2a2a]`                                              | Mørk grå baggrund der kontrasterer mod sort page baggrund                            |
+| `.postCard` interaktion     | `transition-all cursor-pointer`                             | Smooth transitions og cursor pointer                                                 |
+| `.postCard` shadow          | `shadow-[0_2px_8px_rgba(0,0,0,0.3)]`                        | Synlig mørk skygge (højere opacity end standard for at være synlig på mørk baggrund) |
+| `.postCard:hover` transform | `hover:-translate-y-1`                                      | Løfter card 4px ved hover                                                            |
+| `.postCard:hover` shadow    | `hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]`                 | Større, dybere skygge ved hover                                                      |
+| `.postCardImage`            | `w-full h-[250px] object-cover rounded-lg`                  | Fuld bredde, fast højde 250px, beskærer billede, 8px border-radius                   |
+| `.postCard h3`              | `text-base font-medium text-[#ededed] mt-1 leading-relaxed` | 16px, medium weight, lys tekst, lille top margin, 1.4 line-height                    |
 
-**Step 3: Post titel**
+**Vigtige læringspunkter:**
 
-```javascript
-<h3 className="text-base font-medium text-black dark:text-[#ededed] mt-1 leading-snug">{post.caption}</h3>
-```
+1. **Arbitrary values for farver:** `bg-[#2a2a2a]` og `text-[#ededed]` for specifikke farver
+2. **Arbitrary values for shadows:** `shadow-[0_2px_8px_rgba(0,0,0,0.3)]` når standard shadows ikke passer
+3. **Shadow på mørk baggrund:** Brug højere opacity (0.3-0.5) for at skygger er synlige
+4. **Transform utilities:** `hover:-translate-y-1` = `transform: translateY(-4px)`
+5. **Arbitrary height:** `h-[250px]` for præcis højde
+6. **Kombineret hover state:** Kan kombinere multiple hover utilities på samme element
 
-**Forklaring:**
+**Trin for at færdiggøre migreringen:**
 
-- `text-base` = 16px font-size
-- `font-medium` = 500 font-weight
-- `leading-snug` = 1.4 line-height
+1. **Fjern CSS Module importen:**
 
-**Tip:** Den faktiske design bruger `var(--foreground)` og `var(--text-primary)` for automatisk dark mode support!
+   ```javascript
+   import styles from "./PostCard.module.css";
+   ```
 
-````
+2. **Slet CSS Module filen:**
+   ```bash
+   rm components/PostCard.module.css
+   ```
 
-**Step 2: Header (bruger info)**
-
-```javascript
-<div className="flex items-center gap-3 mb-4">
-  <img className="w-12 h-12 rounded-full" src={user.image} alt={user.name} />
-  <div>
-    <h3 className="font-semibold text-gray-900">{user.name}</h3>
-    <p className="text-sm text-gray-500">{user.title}</p>
-  </div>
-</div>
-```
-
-**Step 3: Post billede**
-
-```javascript
-<img className="w-full h-64 object-cover rounded-lg mb-4" src={post.image} alt={post.caption} />
-```
-
-**Step 4: Caption og Actions**
-
-```javascript
-<p className="text-gray-700 mb-4">{post.caption}</p>
-<div className="flex justify-end gap-2">
-  <Link
-    href={`/posts/${post.id}`}
-    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-  >
-    View
-  </Link>
-</div>
-```
-
-**Tip:** Brug `flex flex-col` for at stable elementer vertikalt!
+**💡 Bonus tip:** Bemærk hvordan UserAvatar's lyse tekstfarve nu er synlig fordi PostCard ikke længere har CSS Module styling der overskriver det!
 
 </details>
 
