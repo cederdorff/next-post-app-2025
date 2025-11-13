@@ -405,7 +405,6 @@ export default function Home() {
 - ✅ Ændret `<div>` til `<main>` for bedre semantisk HTML
 - ✅ Bruger `Link` komponent i stedet for `<a>` tag for interne links
 
-
 **Trin 4: Fjern CSS Module importen**
 
 Slet linjen:
@@ -446,9 +445,8 @@ rm app/page.module.css
 **Nu skal vi prøve uden alt for meget hjælp! **
 
 - Migrer `UserAvatar` komponenten til Tailwind helt selv.
-- Åben http://localhost:3000/posts så du kan se hvordan den ser ud lige nu. 
-- Åben så UserAvatar komponenten og begynd at migrere. 
-
+- Åben http://localhost:3000/posts så du kan se hvordan den ser ud lige nu.
+- Åben så UserAvatar komponenten og begynd at migrere.
 
 **Tilladt hjælp:**
 
@@ -463,8 +461,8 @@ rm app/page.module.css
 **Checklist når du er færdig:**
 
 - [ ] Billedet er cirkulært
-- [ ] Billedet har en border
-- [ ] Billedet fylder den rigtige størrelse
+- [ ] Billedet fylder den rigtige størrelse (40x40px)
+- [ ] Navn og titel er hvide og synlige på mørk baggrund
 - [ ] CSS Module import er fjernet
 - [ ] Det ser ud som før i browseren
 
@@ -473,58 +471,133 @@ rm app/page.module.css
 <details>
 <summary><strong>🆘 Hjælp (kun hvis du virkelig sidder fast efter 15+ minutter)</strong></summary>
 
-````javascript
-**Hjælp (kun hvis du virkelig sidder fast efter 15+ minutter)**
+**Først skal du se den originale CSS Module styling:**
 
-Den faktiske UserAvatar styling fra projektet:
+```css
+/* UserAvatar.module.css */
+.avatar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.avatarImage {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.userInfo h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.userInfo p {
+  font-size: 12px;
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+```
+
+**FØR (med CSS Modules):**
 
 ```javascript
-// UserAvatar med flex container og bruger info
-<div className="flex items-center gap-3 mb-3">
-  <img
-    className="w-10 h-10 rounded-full object-cover shrink-0"
-    src={image}
-    alt={name}
-  />
-  <div className="flex flex-col gap-0.5">
-    <h3 className="text-sm font-semibold m-0 text-black leading-tight">
-      {name}
-    </h3>
-    <p className="text-xs m-0 text-gray-600 leading-tight">
-      {title}
-    </p>
-  </div>
-</div>
-````
+import Image from "next/image";
+import styles from "./UserAvatar.module.css";
 
-**Forklaring af classes:**
+export default async function UserAvatar({ uid }) {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
+  const response = await fetch(url);
+  const user = await response.json();
 
-- `w-10 h-10` = width og height: 40px (matcher .avatarImage styling)
-- `rounded-full` = perfekt cirkel
-- `object-cover` = beskærer billede korrekt
-- `flex-shrink-0` = forhindrer billedet i at krympe
-- `flex flex-col` = stakker navn og titel vertikalt
-- `gap-0.5` = meget lille mellemrum (2px) mellem navn og titel
-- `leading-tight` = line-height: 1.2 for kompakt visning
+  return (
+    <div className={styles.avatar}>
+      <Image src={user.image} alt={user.name} width={40} height={40} className={styles.avatarImage} />
+      <span className={styles.userInfo}>
+        <h3>{user.name}</h3>
+        <p>{user.title}</p>
+      </span>
+    </div>
+  );
+}
+```
 
-**Note:** Ingen border i den faktiske design - kun cirkulært billede!
+**EFTER (med Tailwind):**
 
-````
+```javascript
+import Image from "next/image";
 
-**Forklaring af classes:**
+export default async function UserAvatar({ uid }) {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
+  const response = await fetch(url);
+  const user = await response.json();
 
-- `w-12 h-12` = width og height: 3rem (48px)
-- `rounded-full` = perfekt cirkel
-- `border-2` = 2px border
-- `border-gray-300` = lys grå border farve
-- `object-cover` = beskærer billede korrekt (sikrer det ikke strækkes)
+  return (
+    <div className="flex items-center gap-3 mb-3">
+      <Image
+        src={user.image}
+        alt={user.name}
+        width={40}
+        height={40}
+        className="w-10 h-10 rounded-full object-cover shrink-0"
+      />
+      <span className="flex flex-col gap-0.5">
+        <h3 className="text-sm font-semibold m-0 text-[#ededed] leading-tight">{user.name}</h3>
+        <p className="text-xs m-0 text-gray-400 leading-tight">{user.title}</p>
+      </span>
+    </div>
+  );
+}
+```
 
-**Størrelser til avatar:**
+**Forklaring af CSS → Tailwind mapping:**
 
-- Small: `w-8 h-8` (32px)
-- Medium: `w-12 h-12` (48px)
-- Large: `w-16 h-16` (64px)
-- Extra large: `w-24 h-24` (96px)
+| CSS Module     | Tailwind Classes                                     | Forklaring                                      |
+| -------------- | ---------------------------------------------------- | ----------------------------------------------- |
+| `.avatar`      | `flex items-center gap-3 mb-3`                       | Flexbox container med 12px gap og margin-bottom |
+| `.avatarImage` | `w-10 h-10 rounded-full object-cover shrink-0`       | 40x40px cirkulært billede der ikke krymper      |
+| `.userInfo`    | `flex flex-col gap-0.5`                              | Vertikal flex container med 2px gap             |
+| `.userInfo h3` | `text-sm font-semibold m-0 text-white leading-tight` | 14px bold hvid tekst                            |
+| `.userInfo p`  | `text-xs m-0 text-white leading-tight`               | 12px hvid tekst                                 |
+
+**Vigtige læringspunkter:**
+
+1. **Tailwind størrelser:** `w-10 h-10` = 40px (Tailwind bruger 4px spacing scale)
+2. **Gap utilities:** `gap-3` = 12px, `gap-0.5` = 2px (mellem navn og titel)
+3. **Cirkulært billede:** `rounded-full` gør billeder perfekt runde
+4. **Shrink:** `shrink-0` forhindrer billedet i at krympe (erstatter `flex-shrink: 0`)
+5. **Tekstfarve:** `text-[#ededed]` for lys tekst der er synlig på mørk baggrund
+6. **Leading:** `leading-tight` = `line-height: 1.2`
+
+**Trin for at færdiggøre migreringen:**
+
+1. **Fjern CSS Module importen:**
+
+   ```javascript
+   import styles from "./UserAvatar.module.css";
+   ```
+
+2. **Slet CSS Module filen:**
+   ```bash
+   rm components/UserAvatar.module.css
+   ```
+
+**⚠️ Vigtig note om tekstfarver:**
+
+Selv om du har tilføjet `text-[#ededed]` til `h3` (user.name), kan det være at teksten stadig vises mørk i browseren. Det er fordi PostCard komponenten har CSS Module styling der overskriver dette. Når du migrerer PostCard til Tailwind i næste opgave, vil den lyse tekstfarve slå igennem korrekt!
 
 </details>
 
@@ -575,7 +648,7 @@ PostCard er den mest komplekse komponent indtil videre. I stedet for at give dig
 
 **Step 1: Container**
 
-```javascript
+````javascript
 **📋 Guide til sammenligning (åbn EFTER du har prøvet selv)**
 
 **PostCard styling fra den faktiske implementation:**
@@ -587,9 +660,10 @@ PostCard er den mest komplekse komponent indtil videre. I stedet for at give dig
 
 ```javascript
 <article className="flex flex-col gap-3 p-5 rounded-xl bg-white transition-all cursor-pointer shadow-sm hover:-translate-y-1 hover:shadow-lg">
-```
+````
 
 **Forklaring:**
+
 - `flex flex-col` = vertical layout med flexbox
 - `gap-3` = 12px mellemrum mellem elementer
 - `p-5` = 20px padding
@@ -601,31 +675,28 @@ PostCard er den mest komplekse komponent indtil videre. I stedet for at give dig
 **Step 2: Post billede**
 
 ```javascript
-<img
-  className="w-full h-[250px] object-cover rounded-lg"
-  src={post.image}
-  alt={post.caption}
-/>
+<img className="w-full h-[250px] object-cover rounded-lg" src={post.image} alt={post.caption} />
 ```
 
 **Forklaring:**
+
 - `h-[250px]` = fast højde på 250px
 - `rounded-lg` = 8px border-radius på billedet
 
 **Step 3: Post titel**
 
 ```javascript
-<h3 className="text-base font-medium text-black mt-1 leading-snug">
-  {post.caption}
-</h3>
+<h3 className="text-base font-medium text-black mt-1 leading-snug">{post.caption}</h3>
 ```
 
 **Forklaring:**
+
 - `text-base` = 16px font-size
 - `font-medium` = 500 font-weight
 - `leading-snug` = 1.4 line-height
 
 **Tip:** Simpel styling med hvid baggrund til cards på mørk page baggrund!
+
 ````
 
 **Forklaring:**
@@ -675,7 +746,7 @@ PostCard er den mest komplekse komponent indtil videre. I stedet for at give dig
     <p className="text-sm text-gray-500">{user.title}</p>
   </div>
 </div>
-````
+```
 
 **Step 3: Post billede**
 
