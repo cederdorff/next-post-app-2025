@@ -1778,121 +1778,309 @@ export default function Nav() {
 
 ---
 
-## Opgave 4.9: Migrer DeleteButton/DeletePostButton
+## Opgave 4.9: Migrer DeletePostButton
 
-**Delete button (trigger):**
+DeletePostButton er en komponent med modal dialog og animations.
 
-```javascript
-<button className="px-3 py-3 bg-transparent text-red-500 border-2 border-red-500 rounded-lg text-base font-medium cursor-pointer transition-all hover:bg-red-500 hover:text-white">
-  Delete
-</button>
+### Hints
+
+<details>
+<summary>💡 Hint 1: Delete button styling</summary>
+
+Delete knappen skal være transparent med rød border og tekst:
+
+- `bg-transparent` - gennemsigtig baggrund
+- `text-red-500` og `border-red-500` - rød farve
+- `hover:bg-red-500 hover:text-white` - fyldt rød ved hover
+
+</details>
+
+<details>
+<summary>💡 Hint 2: Modal overlay</summary>
+
+Modal overlay skal dække hele skærmen:
+
+- `fixed inset-0` - fixed position med top/right/bottom/left: 0
+- `bg-black/50` - sort baggrund med 50% gennemsigtighed
+- `flex items-center justify-center` - centrer indholdet
+- `z-1000` - meget høj z-index
+
+</details>
+
+<details>
+<summary>💡 Hint 3: Modal box</summary>
+
+Modal boksen skal have:
+
+- `bg-[#2a2a2a]` - mørk baggrund (matchende vores dark theme)
+- `p-8 rounded-xl` - padding og runde hjørner
+- `max-w-[450px] w-[90%]` - max bredde og responsiv
+- `animate-fadeIn` og `animate-slideIn` - brug custom animations fra globals.css
+
+</details>
+
+<details>
+<summary>💡 Hint 4: Modal buttons</summary>
+
+Cancel button:
+
+- `bg-[#1a1a1a]` med `border border-gray-700`
+- `text-[#ededed]`
+- `hover:bg-[#333333]`
+
+Confirm button:
+
+- `bg-red-500 text-white`
+- `hover:bg-red-600`
+- Begge har `disabled:opacity-50 disabled:cursor-not-allowed`
+
+</details>
+
+### Løsning
+
+**components/DeletePostButton.module.css (FØR):**
+
+```css
+.btnDelete {
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: #ef4444;
+  border: 2px solid #ef4444;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btnDelete:hover {
+  background-color: #ef4444;
+  color: white;
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+/* Modal Box */
+.modal {
+  background-color: var(--foreground);
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideIn 0.3s ease-out;
+}
+
+.modal h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.modal p {
+  margin: 0 0 1.5rem 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Modal Buttons */
+.modalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btnCancel,
+.btnConfirm {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btnCancel {
+  background-color: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btnCancel:hover:not(:disabled) {
+  background-color: #f5f5f5;
+}
+
+.btnConfirm {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btnConfirm:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+.btnCancel:disabled,
+.btnConfirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 ```
 
-**Modal overlay (baggrund med fadeIn animation):**
+**components/DeletePostButton.js (FØR):**
 
 ```javascript
-<div className="fixed top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center z-1000 animate-[fadeIn_0.2s_ease-in-out]">
+"use client";
+
+import { useState } from "react";
+import styles from "./DeletePostButton.module.css";
+
+export default function DeletePostButton({ deleteAction }) {
+  const [showModal, setShowModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleConfirmDelete() {
+    setIsDeleting(true);
+    await deleteAction();
+  }
+
+  return (
+    <>
+      <button type="button" className={styles.btnDelete} onClick={() => setShowModal(true)}>
+        Delete post
+      </button>
+
+      {showModal && (
+        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <h2>Delete Post?</h2>
+            <p>Are you sure you want to delete this post? This action cannot be undone.</p>
+            <div className={styles.modalButtons}>
+              <button className={styles.btnCancel} onClick={() => setShowModal(false)} disabled={isDeleting}>
+                Cancel
+              </button>
+              <button className={styles.btnConfirm} onClick={handleConfirmDelete} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 ```
 
-**Modal content box:**
+**components/DeletePostButton.js (EFTER):**
 
 ```javascript
-<div className="bg-white p-8 rounded-xl max-w-[450px] w-[90%] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] animate-[slideIn_0.3s_ease-out]">
-  <h2 className="m-0 mb-4 text-2xl font-semibold text-black">Confirm Delete</h2>
-  <p className="m-0 mb-6 text-gray-600 leading-relaxed">
-    Are you sure you want to delete this post? This action cannot be undone.
-  </p>
+"use client";
 
-  {/* Buttons container */}
-  <div className="flex gap-4 justify-end">
-    <button
-      onClick={onCancel}
-      className="px-6 py-3 rounded-lg text-base font-medium cursor-pointer transition-all border-none bg-gray-100 text-black border border-gray-300 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed">
-      Cancel
-    </button>
-    <button
-      onClick={onConfirm}
-      className="px-6 py-3 rounded-lg text-base font-medium cursor-pointer transition-all border-none bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed">
-      Delete
-    </button>
-  </div>
-</div>
+import { useState } from "react";
+
+export default function DeletePostButton({ deleteAction }) {
+  const [showModal, setShowModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleConfirmDelete() {
+    setIsDeleting(true);
+    await deleteAction();
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className="px-6 py-3 bg-transparent text-red-500 border-2 border-red-500 rounded-lg font-medium transition-all hover:bg-red-500 hover:text-white hover:cursor-pointer"
+        onClick={() => setShowModal(true)}>
+        Delete post
+      </button>
+
+      {showModal && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-1000 animate-fadeIn"
+          onClick={() => setShowModal(false)}>
+          <div
+            className="bg-[#2a2a2a] p-8 rounded-xl max-w-[450px] w-[90%] shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_10px_10px_-5px_rgba(0,0,0,0.04)] animate-slideIn"
+            onClick={e => e.stopPropagation()}>
+            <h2 className="m-0 mb-4 text-2xl font-semibold text-[#ededed]">Delete Post?</h2>
+            <p className="m-0 mb-6 text-gray-400 leading-relaxed">
+              Are you sure you want to delete this post? This action cannot be undone.
+            </p>
+            <div className="flex gap-4 justify-end">
+              <button
+                className="px-6 py-3 rounded-lg font-medium transition-all border border-gray-700 bg-[#1a1a1a] text-[#ededed] hover:bg-[#333333] disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
+                onClick={() => setShowModal(false)}
+                disabled={isDeleting}>
+                Cancel
+              </button>
+              <button
+                className="px-6 py-3 rounded-lg font-medium transition-all border-none bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed hover:cursor-pointer"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 ```
 
-**Tips:**
+### CSS → Tailwind Mapping
 
-- `bg-black/50` = 50% gennemsigtighed i stedet for `rgba(0,0,0,0.5)`
-- `z-1000` = meget høj z-index for modal overlay
-- Animations (`fadeIn`, `slideIn`) kan defineres i `globals.css` som custom keyframes
+| CSS Module                                  | Tailwind Classes                                                                                      |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `.btnDelete`                                | `px-6 py-3 bg-transparent text-red-500 border-2 border-red-500 rounded-lg font-medium transition-all` |
+| `.btnDelete:hover`                          | `hover:bg-red-500 hover:text-white`                                                                   |
+| `.modalOverlay`                             | `fixed inset-0 bg-black/50 flex items-center justify-center z-1000 animate-fadeIn`                    |
+| `position: fixed; top/left/right/bottom: 0` | `fixed inset-0`                                                                                       |
+| `rgba(0, 0, 0, 0.5)`                        | `bg-black/50`                                                                                         |
+| `z-index: 1000`                             | `z-1000`                                                                                              |
+| `animation: fadeIn ...`                     | `animate-fadeIn`                                                                                      |
+| `.modal`                                    | `bg-[#2a2a2a] p-8 rounded-xl max-w-[450px] w-[90%]`                                                   |
+| `animation: slideIn ...`                    | `animate-slideIn`                                                                                     |
+| `.modal h2`                                 | `m-0 mb-4 text-2xl font-semibold text-[#ededed]`                                                      |
+| `.modal p`                                  | `m-0 mb-6 text-gray-400 leading-relaxed`                                                              |
+| `.modalButtons`                             | `flex gap-4 justify-end`                                                                              |
+| `.btnCancel`                                | `px-6 py-3 rounded-lg font-medium transition-all border border-gray-700 bg-[#1a1a1a] text-[#ededed]`  |
+| `.btnCancel:hover`                          | `hover:bg-[#333333]`                                                                                  |
+| `.btnConfirm`                               | `px-6 py-3 rounded-lg font-medium transition-all border-none bg-red-500 text-white`                   |
+| `.btnConfirm:hover`                         | `hover:bg-red-600`                                                                                    |
+| `:disabled`                                 | `disabled:opacity-50 disabled:cursor-not-allowed`                                                     |
 
----
+### Læringspunkter
 
-## Opgave 4.9: Tjek og Test Alle Komponenter
+1. **Modal Overlay Pattern**: `fixed inset-0` dækker hele skærmen, `bg-black/50` giver semi-transparent baggrund
+2. **Z-index**: `z-1000` sikrer modal ligger over alt andet indhold
+3. **Custom Animations**: `animate-fadeIn` og `animate-slideIn` defineret i `globals.css`
+4. **Click Propagation**: `onClick={e => e.stopPropagation()}` forhindrer lukning ved klik på modal indhold
+5. **Disabled States**: `disabled:opacity-50 disabled:cursor-not-allowed` giver visuelt feedback
+6. **Dark Theme Modal**: `bg-[#2a2a2a]` matcher vores mørke tema fra PostCard og Nav
+7. **Red Button Styling**: `text-red-500 border-red-500` for delete action med `hover:bg-red-500 hover:text-white`
 
-**Nu har du migreret de vigtigste komponenter. Tid til at teste!**
+**Tilføj animations til globals.css:**
 
-**Gennemgå hver komponent:**
-
-1. **Nav** - Er navigationen fixed i toppen? Virker hover states?
-2. **UserAvatar** - Er billedet cirkulært? Er tekststørrelser korrekte?
-3. **PostCard** - Virker hover effect (løft og skygge)? Er spacing korrekt?
-4. **FormPost** - Er grid layout korrekt på desktop? Bliver det én kolonne på mobil?
-5. **DeletePostButton** - Vises modal korrekt? Virker animations?
-
-**Test i browseren:**
-
-- 📱 **Mobil** - Resize browser vinduet til mobil størrelse
-- 💻 **Desktop** - Test på fuld skærm
-- 🎨 **Styling** - Sammenlign med original design
-
-**Almindelige problemer:**
-
-- Forkert spacing → sammenlign med original CSS Module styling
-- Missing transitions → `transition-all` mangler på hover elementer
-
-**Når alt fungerer korrekt, fortsæt til næste opgave!**
-
----
-
-## Opgave 4.10: Tilføj Base Styling og Animations til globals.css
-
-**Nu skal vi tilføje minimal CSS tilbage til `globals.css`:**
-
-Da vi erstattede alt indhold med kun `@import "tailwindcss";`, skal vi tilføje:
-
-- Base styling (resets, font)
-- Custom animations til modal
-
-**Opdater `app/globals.css` til:**
+For at `animate-fadeIn` og `animate-slideIn` virker, skal vi tilføje custom keyframes til `app/globals.css`:
 
 ```css
 @import "tailwindcss";
-
-/* Base styling */
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-body {
-  background: black;
-  color: #ededed;
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
 
 /* Custom animations for modal */
 @keyframes fadeIn {
@@ -1914,141 +2102,61 @@ a {
     opacity: 1;
   }
 }
+
+/* Make animations available as Tailwind utilities */
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
 ```
 
-**Hvad gør dette:**
+**Slet filen:**
 
-- **Body baggrund:** `background: black` - mørk default baggrund
-- **Body text:** `color: #ededed` - lys tekst på mørk baggrund
-- **Animations:** Til modal fadeIn og slideIn effekter
-
-**Test det virker:**
-
-1. Tjek at baggrunden er mørk
-2. Tjek at fonts ser korrekte ud
-3. Animations vil virke når du senere migrerer modal komponenten
+```bash
+rm components/DeletePostButton.module.css
+```
 
 ---
 
-## Opgave 4.11: Migrer Alle Sider
+## Opgave 4.10: Tjek og Test Alle Komponenter
 
-**Gennemgå hver side og migrer til Tailwind:**
+**Nu har du migreret alle komponenter. Tid til at teste!**
 
-**`app/posts/page.js` (Posts liste):**
+**Gennemgå hver komponent:**
 
-```javascript
-export default async function PostsPage() {
-  const posts = await getPosts();
+1. **Nav** - Er navigationen fixed i toppen? Virker hover states?
+2. **UserAvatar** - Er billedet cirkulært? Er tekststørrelser korrekte?
+3. **PostCard** - Virker hover effect (løft og skygge)? Er spacing korrekt?
+4. **FormPost** - Er grid layout korrekt på desktop? Bliver det én kolonne på mobil?
+5. **DeletePostButton** - Vises modal korrekt? Virker animations?
 
-  return (
-    <div className="min-h-screen pt-20 pb-10 bg-black">
-      <div className="max-w-[1400px] mx-auto px-5">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 py-5">
-          {posts.map(post => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-```
+**Test i browseren:**
 
-**`app/posts/[id]/page.js` (Post detail):**
+- 📱 **Mobil** - Resize browser vinduet til mobil størrelse
+- 💻 **Desktop** - Test på fuld skærm
+- 🎨 **Styling** - Sammenlign med original design
 
-```javascript
-export default async function PostDetailPage({ params }) {
-  const post = await getPost(params.id);
+**Almindelige problemer:**
 
-  return (
-    <div className="min-h-screen pt-20 pb-10 bg-black">
-      <div className="max-w-[800px] mx-auto py-10 px-5">
-        <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">Post Details</h1>
+- Forkert spacing → sammenlign med original CSS Module styling
+- Missing transitions → `transition-all` mangler på hover elementer
+- Animations virker ikke → tjek at keyframes er tilføjet til `globals.css`
 
-        {/* Post content */}
-        <div className="bg-white p-6 rounded-xl mb-6 shadow-sm">
-          {/* UserAvatar component */}
-          <UserAvatar user={post.user} />
-
-          {/* Post image */}
-          <img className="w-full h-auto object-cover rounded-lg mb-4" src={post.image} alt={post.caption} />
-
-          {/* Caption */}
-          <p className="text-base text-black leading-relaxed">{post.caption}</p>
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex gap-4 mt-5">
-          <Link
-            href={`/posts/${post.id}/update`}
-            className="px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all bg-white text-black hover:opacity-85 hover:-translate-y-px">
-            Update
-          </Link>
-          <DeletePostButton deleteAction={deletePost} />
-        </div>
-      </div>
-    </div>
-  );
-}
-```
-
-**`app/posts/create/page.js` og `app/posts/[id]/update/page.js`:**
-
-```javascript
-export default function CreatePostPage() {
-  return (
-    <div className="min-h-screen pt-20 pb-10 bg-black">
-      <div className="max-w-[800px] mx-auto py-10 px-5">
-        <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">Create New Post</h1>
-        <FormPost />
-      </div>
-    </div>
-  );
-}
-```
-
-**Home page (`app/page.js`):**
-
-```javascript
-export default function HomePage() {
-  return (
-    <div className="min-h-screen pt-20 pb-10 bg-black flex items-center justify-center">
-      <div className="text-center max-w-[600px]">
-        <div className="mb-10">{/* Logo component */}</div>
-        <h1 className="text-[32px] font-semibold mb-4 tracking-tight text-[#ededed]">Next.js Posts App</h1>
-        <p className="text-base text-gray-400 mb-8 leading-relaxed">
-          A modern post sharing application built with Next.js
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Link
-            href="/posts"
-            className="px-6 py-3 rounded-lg font-medium bg-white text-black transition-all hover:opacity-85 hover:-translate-y-px">
-            View Posts
-          </Link>
-          <Link
-            href="/posts/create"
-            className="px-6 py-3 rounded-lg font-medium border border-gray-700 text-[#ededed] transition-all hover:bg-gray-900">
-            Create Post
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-```
-
-**Tip:** Alle sider følger samme mønster med `bg-black` for mørk baggrund og `pt-20` for navigation padding!
+**Når alt fungerer korrekt, er du færdig med migreringen!** 🎉
 
 ---
 
-## Opgave 4.12: Slet Alle CSS Module Filer
+## Opgave 5: Slet Alle CSS Module Filer
 
 **Nu hvor alle komponenter og sider bruger Tailwind, er det tid til oprydning:**
 
 **1. Tjek at alt fungerer:**
 
-- Test hele applikationen
-- Gennemgå alle sider
+- Test hele applikationen i browseren
+- Gennemgå alle sider og komponenter
 - Verificer at styling ser korrekt ud
 
 **2. Slet CSS Module filer:**
@@ -2056,31 +2164,109 @@ export default function HomePage() {
 ```bash
 # I terminal, slet alle .module.css filer:
 rm components/*.module.css
-rm app/**/*.module.css
+rm app/page.module.css
+rm app/posts/page.module.css
+rm app/posts/create/page.module.css
+rm app/posts/[id]/page.module.css
+rm app/posts/[id]/update/page.module.css
 ```
 
-Eller slet dem manuelt:
+Eller slet dem manuelt én ad gangen:
+
+**Komponenter:**
 
 - `components/Nav.module.css`
 - `components/PostCard.module.css`
 - `components/UserAvatar.module.css`
 - `components/FormPost.module.css`
 - `components/DeletePostButton.module.css`
-- Osv.
 
-**3. Fjern CSS Module imports:**
+**Sider:**
 
-Gennemgå alle komponenter og slet linjer som:
+- `app/page.module.css`
+- `app/posts/page.module.css`
+- `app/posts/create/page.module.css`
+- `app/posts/[id]/page.module.css`
+- `app/posts/[id]/update/page.module.css`
 
-```javascript
-import styles from "./Nav.module.css"; // ❌ SLET DENNE LINJE
-```
-
-**4. Verificer at projektet stadig bygger:**
+**3. Verificer at projektet stadig kører:**
 
 ```bash
-npm run build
+npm run dev
 ```
+
+Hvis du ser fejl om manglende CSS Module imports, skal du tjekke at du har fjernet alle `import styles from "./X.module.css"` linjer.
+
+**4. Commit dine ændringer:**
+
+```bash
+git add .
+git commit -m "Migrated from CSS Modules to Tailwind CSS"
+```
+
+---
+
+## Opgave 6: Eksperimenter og Forbedringer (Valgfri)
+
+**Nu hvor du har Tailwind, kan du nemt justere og forbedre:**
+
+**1. Hover effects er allerede implementeret:**
+
+```javascript
+// PostCard hover effect
+className = "hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition-all";
+
+// Button hover effect
+className = "hover:opacity-85 hover:-translate-y-px";
+```
+
+**2. Juster spacing efter behov:**
+
+```javascript
+// Prøv forskellige gap værdier
+className = "gap-3 md:gap-4 lg:gap-6";
+
+// Responsive padding
+className = "p-4 md:p-6 lg:p-8";
+```
+
+**3. Eksperimenter med farver:**
+
+```javascript
+// Skift primær knap farve til blå
+className = "bg-blue-600 text-white hover:bg-blue-700";
+
+// Eller grøn
+className = "bg-green-600 text-white hover:bg-green-700";
+```
+
+**4. Fine-tune border radius:**
+
+```javascript
+// Fra rounded-xl (12px) til rounded-2xl (16px)
+className = "rounded-2xl";
+
+// Eller mere kantede hjørner
+className = "rounded-md";
+```
+
+**5. Tilføj nye responsive breakpoints:**
+
+```javascript
+// Skjul på mobil, vis på tablet
+className = "hidden md:block";
+
+// Forskellige layouts på mobil vs desktop
+className = "flex-col md:flex-row";
+```
+
+---
+
+## Konklusion
+
+npm run build
+
+````
 
 Hvis der er fejl, har du måske glemt at migrere en komponent!
 
@@ -2089,7 +2275,7 @@ Hvis der er fejl, har du måske glemt at migrere en komponent!
 ```bash
 git add .
 git commit -m "Migrated from CSS Modules to Tailwind CSS"
-```
+````
 
 ---
 
@@ -2137,15 +2323,46 @@ git commit -m "Migrated from CSS Modules to Tailwind CSS"
    className = "rounded-md";
    ```
 
-5. **Dark mode er allerede implementeret:**
+**5. Tilføj nye responsive breakpoints:**
 
-   Alle komponenter bruger allerede `dark:` prefix for dark mode support. Test det ved at ændre systemets appearance!
+```javascript
+// Skjul på mobil, vis på tablet
+className = "hidden md:block";
+
+// Forskellige layouts på mobil vs desktop
+className = "flex-col md:flex-row";
+```
 
 ---
 
-## Reflektion
+## Konklusion
 
-- Hvilke forbedringer tilføjede du?
+🎉 **Tillykke! Du har nu migreret hele Next.js Post App fra CSS Modules til Tailwind CSS!**
+
+**Hvad har du lært:**
+
+- ✅ At installere og konfigurere Tailwind CSS i Next.js 16
+- ✅ At konvertere CSS Module styling til Tailwind utility classes
+- ✅ Responsive design med Tailwind breakpoints (`md:`, `lg:`, etc.)
+- ✅ Custom animations og keyframes
+- ✅ Dark theme styling med custom farver
+- ✅ Grid layouts med `repeat(auto-fill, minmax())`
+- ✅ Hover states og transitions
+- ✅ Modal dialogs med overlay og animations
+
+**Refleksion:**
+
+- Hvordan påvirker Tailwind din udviklingshastighed?
+- Hvad er fordele og ulemper ved utility-first CSS?
+- Hvornår ville du bruge Tailwind? Hvornår CSS Modules?
+
+**Næste skridt:**
+
+- Eksperimenter med forskellige farver og spacing
+- Tilføj flere responsive breakpoints
+- Prøv at designe nye komponenter fra bunden med Tailwind
+- Del dine erfaringer med klassen!
+
 - Hvordan påvirker Tailwind din udviklingshastighed?
 - Hvad er fordele og ulemper ved utility-first CSS?
 - Hvordan var det at slippe af med alle CSS Module filerne?
