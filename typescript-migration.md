@@ -1,8 +1,56 @@
-# Modul 5: Implementer TypeScript
+# Implementer TypeScript
 
 ## Oversigt
 
 I dette modul vil du migrere applikationen fra JavaScript til TypeScript. Du vil lære at arbejde med type safety og se hvordan TypeScript kan hjælpe med at undgå fejl.
+
+---
+
+## Opgave 1: Opret en ny branch
+
+Før vi starter migrationen, skal du oprette en ny branch. Dette sikrer at din `main` branch forbliver intakt, og du kan arbejde sikkert med migrationen.
+
+**1. Åbn terminalen i VS Code**
+
+**2. Tjek at du er på main branch:**
+
+```bash
+git status
+```
+
+**3. Commit eventuelle ændringer først:**
+
+```bash
+git add .
+git commit -m "Klar til TypeScript migration"
+```
+
+**4. Opret og skift til en ny branch:**
+
+```bash
+git checkout -b typescript-migration
+```
+
+Eller med den nyere kommando:
+
+```bash
+git switch -c typescript-migration
+```
+
+**5. Verificer at du er på den nye branch:**
+
+```bash
+git branch
+```
+
+Du skulle se en stjerne (\*) ved `typescript-migration`.
+
+**Hvorfor er dette vigtigt?**
+
+- ✅ Du kan altid gå tilbage til `main` hvis noget går galt
+- ✅ Du kan sammenligne før/efter ved at skifte mellem branches
+- ✅ Du lærer god Git workflow
+- ✅ Du kan push din branch til GitHub og lave en Pull Request senere
 
 ---
 
@@ -154,7 +202,7 @@ interface MathOperation {
 
 ---
 
-## Opgave 5.0: Forstå problemet TypeScript løser (15 min)
+## Opgave 2: Forstå problemet TypeScript løser (15 min)
 
 **Formål:** Oplev konkret hvorfor TypeScript er værdifuldt ved at teste i dit eget projekt.
 
@@ -256,11 +304,28 @@ I `app/posts/page.js`, prøv at sende en string i stedet for et post objekt:
 3. Hvor mange fejl kunne have nået produktion?
 4. Hvordan tror du TypeScript ville hjælpe?
 
-💡 **Husk disse eksempler - vi tester de samme fejl med TypeScript i Opgave 5.5!**
+💡 **Husk disse eksempler - vi tester de samme fejl med TypeScript i Opgave 8!**
 
 ---
 
-## Opgave 5.1: Installer TypeScript
+## Opgave 3: Commit dine ændringer
+
+Før vi installerer TypeScript, skal du committe dine ændringer fra Opgave 5.1.
+
+```bash
+git add .
+git commit -m "Test JavaScript problemer før TypeScript migration"
+```
+
+**Hvorfor?**
+
+- Du kan altid gå tilbage til denne commit
+- Det gør det nemt at se hvilke filer TypeScript ændrer
+- God Git hygiejne - små, logiske commits
+
+---
+
+## Opgave 4: Installer TypeScript
 
 **Trin 1: Installation af dependencies**
 
@@ -321,7 +386,7 @@ Next.js vil nu automatisk oprette `next-env.d.ts` med type definitions.
 
 ---
 
-## Opgave 5.2: Forstå Interfaces og Types
+## Opgave 5: Forstå Interfaces og Types
 
 **Hvad er en interface?**
 
@@ -381,7 +446,7 @@ console.log(post.caption); // ✅ OK
 
 ---
 
-## Opgave 5.3: Opret Type Definitions
+## Opgave 6: Opret Type Definitions
 
 **Opret type definitions:**
 
@@ -430,7 +495,7 @@ const testPost: Post = {
 
 ---
 
-## Opgave 5.4: Migrer Komponenter
+## Opgave 7: Migrer Komponenter
 
 2. **Omdøb og migrer komponenter én ad gangen:**
 
@@ -575,7 +640,7 @@ export default function DeletePostButton({ deleteAction }: DeletePostButtonProps
 
 ---
 
-## Opgave 5.5: Oplev TypeScript's Fordele (Praktisk øvelse - 15 min)
+## Opgave 8: Oplev TypeScript's Fordele (Praktisk øvelse - 15 min)
 
 **Formål:** Teste de samme scenarier fra Opgave 5.0, men nu med TypeScript!
 
@@ -679,7 +744,7 @@ I `PostCard.tsx`, skriv `post.` og tryk Ctrl+Space (eller Cmd+Space på Mac):
 
 ---
 
-## Opgave 5.6: Migrer Page Filer
+## Opgave 9: Migrer Page Filer
 
 Nu skal vi migrere page filerne i `app/` mappen til TypeScript.
 
@@ -911,7 +976,7 @@ export default async function UpdatePage({ params }: UpdatePageProps) {
 
 ---
 
-## Opgave 5.7: Test og Verificer
+## Opgave 10: Test og Verificer
 
 **Kør development server:**
 
@@ -943,7 +1008,7 @@ npx tsc --noEmit
 
 ---
 
-## Opgave 5.8: Best Practices
+## Opgave 11: Best Practices
 
 **TypeScript conventions vi har brugt:**
 
