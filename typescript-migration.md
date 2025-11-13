@@ -6,6 +6,260 @@ I dette modul vil du migrere applikationen fra JavaScript til TypeScript. Du vil
 
 ---
 
+## Hvad er TypeScript?
+
+**TypeScript er JavaScript med syntax for types.** Det er et programmeringssprog udviklet af Microsoft som bygger oven på JavaScript ved at tilføje statisk type-checking.
+
+### Nøglekoncepter:
+
+**1. TypeScript = JavaScript + Types**
+
+```typescript
+// JavaScript
+function greet(name) {
+  return "Hello, " + name;
+}
+
+// TypeScript
+function greet(name: string): string {
+  return "Hello, " + name;
+}
+```
+
+**2. Compile-time vs Runtime fejl**
+
+- **JavaScript:** Fejl opdages når koden kører (runtime)
+- **TypeScript:** Mange fejl opdages når du skriver koden (compile-time)
+
+**3. TypeScript kompilerer til JavaScript**
+
+- Browsers forstår kun JavaScript
+- TypeScript bliver "oversat" til JavaScript før det kører
+- Next.js håndterer dette automatisk for dig
+
+---
+
+## Hvorfor bruge TypeScript?
+
+### ❌ Problem med JavaScript:
+
+```javascript
+// JavaScript - Ingen advarsler!
+function calculateTotal(price, quantity) {
+  return price * quantity;
+}
+
+// Disse kald giver ingen fejl, men forkerte resultater:
+calculateTotal("10", "5"); // "1010" (string concatenation)
+calculateTotal(10); // NaN (quantity er undefined)
+calculateTotal(null, 5); // 0 (null * 5)
+calculateTotal({ price: 10 }, 5); // NaN (object * 5)
+```
+
+### ✅ Løsning med TypeScript:
+
+```typescript
+// TypeScript - Fanger fejl med det samme!
+function calculateTotal(price: number, quantity: number): number {
+  return price * quantity;
+}
+
+// TypeScript giver røde streger under disse:
+calculateTotal("10", "5"); // ❌ Fejl: string er ikke number
+calculateTotal(10); // ❌ Fejl: mangler quantity parameter
+calculateTotal(null, 5); // ❌ Fejl: null er ikke number
+calculateTotal({ price: 10 }, 5); // ❌ Fejl: object er ikke number
+
+// Kun dette er tilladt:
+calculateTotal(10, 5); // ✅ OK: returnerer 50
+```
+
+### Konkrete fordele:
+
+1. **Fanger fejl før koden kører**
+
+   - Stavefejl i property navne
+   - Forkerte typer sendt til funktioner
+   - Manglende required properties
+
+2. **Bedre udviklingsoplevelse**
+
+   - IntelliSense/autocomplete i VS Code
+   - Dokumentation direkte i koden
+   - Hurtigere at navigere i kodebasen
+
+3. **Sikrere refactoring**
+
+   - Omdøb en property - TypeScript finder alle steder
+   - Ændre en function signatur - TypeScript viser hvor den bruges forkert
+
+4. **Levende dokumentation**
+   - Types viser hvad funktioner forventer og returnerer
+   - Interfaces dokumenterer data strukturer
+
+---
+
+## Før vi starter: Forstå grundlæggende types
+
+### Primitive types:
+
+```typescript
+let name: string = "Alice";
+let age: number = 25;
+let isStudent: boolean = true;
+let nothing: null = null;
+let notDefined: undefined = undefined;
+```
+
+### Arrays:
+
+```typescript
+let numbers: number[] = [1, 2, 3];
+let names: string[] = ["Alice", "Bob"];
+let mixed: (string | number)[] = ["Alice", 25]; // Union type
+```
+
+### Objects med interface:
+
+```typescript
+interface Person {
+  name: string;
+  age: number;
+  email?: string; // ? betyder optional
+}
+
+const person: Person = {
+  name: "Alice",
+  age: 25
+  // email er optional, så det er OK at udelade
+};
+```
+
+### Function types:
+
+```typescript
+// Function med parameter og return type
+function add(a: number, b: number): number {
+  return a + b;
+}
+
+// Arrow function
+const multiply = (a: number, b: number): number => a * b;
+
+// Function type i interface
+interface MathOperation {
+  execute: (a: number, b: number) => number;
+}
+```
+
+---
+
+## Opgave 5.0: Forstå problemet TypeScript løser (15 min)
+
+**Formål:** Oplev konkret hvorfor TypeScript er værdifuldt ved at teste i dit eget projekt.
+
+### Del 1: Generelle scenarier (5 min)
+
+Tænk over disse typiske JavaScript problemer:
+
+**Scenario 1: Stavefejl i property navn**
+
+```javascript
+// JavaScript - ingen fejl før runtime
+const post = { caption: "Hello", image: "url.jpg" };
+console.log(post.capition); // undefined - ingen advarsel!
+```
+
+**Scenario 2: Forkert type sendt til funktion**
+
+```javascript
+// JavaScript - ingen fejl før runtime
+function calculateAge(birthYear) {
+  return 2024 - birthYear;
+}
+calculateAge("1990"); // "20241990" - forkert resultat!
+```
+
+**Scenario 3: Manglende required felt**
+
+```javascript
+// JavaScript - fejl først når koden kører
+const user = { name: "Alice" }; // mangler email
+sendEmail(user.email); // Runtime fejl: Cannot read property of undefined
+```
+
+### Del 2: Test i dit projekt (10 min)
+
+**Nu skal du teste lignende fejl i din NUVÆRENDE JavaScript kode!**
+
+#### Test 1: Stavefejl
+
+I `components/PostCard.js`, lav bevidst en stavefejl:
+
+```javascript
+// Ændr midlertidigt:
+<h3>{post.capition}</h3> // Forkert: capition i stedet for caption
+```
+
+**Hvad sker der?**
+
+- Får du en fejl med det samme?
+- Skal du køre appen for at se fejlen?
+- Hvad vises i browseren?
+
+**Husk at ændre tilbage til `post.caption` efter testen!**
+
+#### Test 2: Manglende property check
+
+I `components/UserAvatar.js`, kommenter valideringen ud:
+
+```javascript
+// Tilføj før return:
+console.log("User:", user);
+console.log("User name:", user.name);
+
+// Hvad hvis user er null eller undefined?
+```
+
+Prøv at sende `null` som uid:
+
+```javascript
+<UserAvatar uid={null} />
+```
+
+**Hvad sker der?**
+
+- Får du en fejl?
+- Hvornår opdages problemet?
+
+**Husk at fjerne testen efter!**
+
+#### Test 3: Forkert prop type
+
+I `app/posts/page.js`, prøv at sende en string i stedet for et post objekt:
+
+```javascript
+<PostCard post="dette er forkert" />
+```
+
+**Hvad sker der?**
+
+- Advarer JavaScript dig?
+- Hvornår går det galt?
+
+**Husk at ændre tilbage!**
+
+### Refleksion (skriv ned):
+
+1. Hvornår opdagede du fejlene? (compile-time eller runtime?)
+2. Var fejlmeddelelserne klare?
+3. Hvor mange fejl kunne have nået produktion?
+4. Hvordan tror du TypeScript ville hjælpe?
+
+💡 **Husk disse eksempler - vi tester de samme fejl med TypeScript i Opgave 5.5!**
+
+---
+
 ## Opgave 5.1: Installer TypeScript
 
 **Trin 1: Installation af dependencies**
@@ -67,7 +321,67 @@ Next.js vil nu automatisk oprette `next-env.d.ts` med type definitions.
 
 ---
 
-## Opgave 5.2: Gradvis Migration - Start med Types
+## Opgave 5.2: Forstå Interfaces og Types
+
+**Hvad er en interface?**
+
+En interface er en kontrakt der definerer strukturen af et objekt. Det fortæller TypeScript præcis hvilke properties et objekt skal have.
+
+### Eksempel: Uden interface (JavaScript)
+
+```javascript
+// JavaScript - ingen garanti for struktur
+const post = {
+  id: "123",
+  caption: "Hello",
+  image: "url.jpg",
+  uid: "user1",
+  createdAt: 1234567890
+};
+
+// Ingen advarsler hvis du laver fejl:
+console.log(post.capition); // undefined - stavefejl!
+console.log(post.date); // undefined - property findes ikke!
+```
+
+### Eksempel: Med interface (TypeScript)
+
+```typescript
+// TypeScript - klar struktur
+interface Post {
+  id: string;
+  caption: string;
+  image: string;
+  uid: string;
+  createdAt: number;
+}
+
+const post: Post = {
+  id: "123",
+  caption: "Hello",
+  image: "url.jpg",
+  uid: "user1",
+  createdAt: 1234567890
+};
+
+// TypeScript fanger fejl:
+console.log(post.capition); // ❌ Fejl: Property 'capition' does not exist
+console.log(post.date); // ❌ Fejl: Property 'date' does not exist
+
+// Kun dette virker:
+console.log(post.caption); // ✅ OK
+```
+
+### Fordele ved interfaces:
+
+1. **Autocomplete:** VS Code viser alle tilgængelige properties
+2. **Fejlfinding:** Fanger stavefejl med det samme
+3. **Dokumentation:** Andre kan se hvilke felter objektet har
+4. **Genbrug:** Samme interface kan bruges mange steder
+
+---
+
+## Opgave 5.3: Opret Type Definitions
 
 **Opret type definitions:**
 
@@ -89,6 +403,34 @@ export interface User {
   image: string;
 }
 ```
+
+**Hvorfor export?**
+
+- `export` betyder at andre filer kan importere disse interfaces
+- Uden `export` kan interfaces kun bruges i samme fil
+
+**Øvelse: Forstå interfaces**
+
+Prøv at tilføje et Post objekt med en fejl:
+
+```typescript
+// I din kode, prøv:
+const testPost: Post = {
+  id: "1",
+  caption: "Test"
+  // mangler image, uid, createdAt - hvad sker der?
+};
+```
+
+**Refleksion:**
+
+- Hvad siger TypeScript fejlen?
+- Hvor hurtigt opdagede du fejlen?
+- Sammenlign med JavaScript - hvornår ville du have opdaget fejlen der?
+
+---
+
+## Opgave 5.4: Migrer Komponenter
 
 2. **Omdøb og migrer komponenter én ad gangen:**
 
@@ -233,7 +575,111 @@ export default function DeletePostButton({ deleteAction }: DeletePostButtonProps
 
 ---
 
-## Opgave 5.3: Migrer Page Filer
+## Opgave 5.5: Oplev TypeScript's Fordele (Praktisk øvelse - 15 min)
+
+**Formål:** Teste de samme scenarier fra Opgave 5.0, men nu med TypeScript!
+
+### Øvelse 1: TypeScript fanger stavefejl (Scenario 1 fra Opgave 5.0)
+
+**Husker du dette fra Opgave 5.0?**
+
+```javascript
+// JavaScript - ingen fejl
+console.log(post.capition); // undefined
+```
+
+**Nu med TypeScript - prøv det samme i `PostCard.tsx`:**
+
+```typescript
+export default function PostCard({ post }: PostCardProps) {
+  return (
+    <article>
+      <h3>{post.capition}</h3> {/* Stavefejl: capition i stedet for caption */}
+    </article>
+  );
+}
+```
+
+**Hvad sker der nu?**
+
+- 🔴 TypeScript viser en rød streg med det samme!
+- Fejlbesked: `Property 'capition' does not exist on type 'Post'`
+- Du opdager fejlen FØR du kører koden
+
+**Sammenlign med JavaScript:**
+
+- JavaScript: Ingen fejl før runtime (eller slet ikke)
+- TypeScript: Fejl med det samme i editoren ✅
+
+### Øvelse 2: TypeScript kræver alle required properties (Scenario 3 fra Opgave 5.0)
+
+**Husker du dette fra Opgave 5.0?**
+
+```javascript
+// JavaScript - runtime fejl
+const user = { name: "Alice" }; // mangler email
+```
+
+**Nu med TypeScript - prøv i `posts/page.tsx`:**
+
+```typescript
+const emptyPost: Post = {
+  id: "1",
+  caption: "Test"
+  // mangler image, uid, createdAt - hvad sker der?
+};
+```
+
+**Hvad sker der nu?**
+
+- 🔴 TypeScript viser fejl for HVER manglende property
+- Præcis besked om hvad der mangler
+- Kan ikke bygge appen før det er rettet
+
+**Sammenlign med JavaScript:**
+
+- JavaScript: Fejl først når koden kører (runtime error)
+- TypeScript: Fejl med det samme (compile-time error) ✅
+
+### Øvelse 3: TypeScript's IntelliSense (Bonus fordel!)
+
+**I JavaScript:** Du skal huske eller slå op hvilke properties Post har.
+
+**I TypeScript:** Editoren hjælper dig!
+
+I `PostCard.tsx`, skriv `post.` og tryk Ctrl+Space (eller Cmd+Space på Mac):
+
+```typescript
+<h3>{post.}</h3>  {/* Tryk Ctrl+Space her */}
+```
+
+**Hvad sker der?**
+
+- 📋 VS Code viser alle tilgængelige properties: `id`, `caption`, `image`, `uid`, `createdAt`
+- Du behøver ikke at huske eller slå op hvad Post har
+- Autocomplete hjælper dig med at skrive hurtigere og undgå stavefejl
+
+### Opsummering: Opgave 5.0 vs Opgave 5.5
+
+| Scenario                   | JavaScript (Opgave 5.0)         | TypeScript (Opgave 5.5)    |
+| -------------------------- | ------------------------------- | -------------------------- |
+| **Stavefejl** (`capition`) | ❌ Ingen fejl - viser undefined | ✅ Rød streg med det samme |
+| **Manglende properties**   | ❌ Runtime error                | ✅ Compile-time error      |
+| **Forkert type**           | ❌ Forkert resultat             | ✅ Fejl ved compile-time   |
+| **Autocomplete**           | ❌ Begrænset                    | ✅ Fuld understøttelse     |
+
+**Konklusion:** TypeScript fanger fejl MEGET tidligere i udviklingscyklussen! 🎯
+
+### Refleksion (skriv ned):
+
+1. Hvilke af de 3 scenarier fra Opgave 5.0 fangede TypeScript?
+2. Hvad var den største forskel mellem JavaScript og TypeScript?
+3. Hvor hjalp IntelliSense dig mest?
+4. Føler du dig mere sikker på at kode med TypeScript? Hvorfor?
+
+---
+
+## Opgave 5.6: Migrer Page Filer
 
 Nu skal vi migrere page filerne i `app/` mappen til TypeScript.
 
@@ -465,7 +911,7 @@ export default async function UpdatePage({ params }: UpdatePageProps) {
 
 ---
 
-## Opgave 5.4: Test og Verificer
+## Opgave 5.7: Test og Verificer
 
 **Kør development server:**
 
@@ -497,7 +943,7 @@ npx tsc --noEmit
 
 ---
 
-## Opgave 5.5: Best Practices
+## Opgave 5.8: Best Practices
 
 **TypeScript conventions vi har brugt:**
 
@@ -563,7 +1009,7 @@ const dataObject: Record<string, Omit<Post, "id">> = ...
 
 ---
 
-## Opsummering
+## Opsummering og Refleksion
 
 **Du har nu migreret hele applikationen til TypeScript!**
 
@@ -574,192 +1020,43 @@ const dataObject: Record<string, Omit<Post, "id">> = ...
 ✅ **Pages:** Alle routes typed inkl. dynamic routes  
 ✅ **Server Actions:** Typed FormData parametre
 
-**Næste skridt:** Fortsæt med at bruge TypeScript i nye features og nyd fordelene! 🎉
+### Refleksionsspørgsmål (besvar skriftligt):
 
-export async function updatePost(id: string, formData: FormData) {
-const caption = formData.get("caption") as string;
-const image = formData.get("image") as string;
+**Om læring:**
 
-const updates = {
-caption,
-image
-};
+1. Hvad er den største fordel du har oplevet ved TypeScript?
+2. Hvilke konkrete fejl fangede TypeScript før runtime?
+3. Hvordan hjalp IntelliSense/autocomplete dig?
 
-await fetch(`${process.env.FIREBASE_URL}/posts/${id}.json`, {
-method: "PATCH",
-body: JSON.stringify(updates)
-});
+**Om forståelse:** 4. Forklar med dine egne ord: Hvad er forskellen på compile-time og runtime fejl? 5. Hvad er en interface, og hvorfor er den nyttig? 6. Hvorfor infererer TypeScript return types automatisk på async funktioner?
 
-revalidatePath("/posts");
-redirect(`/posts/${id}`);
-}
+**Om praksis:** 7. Ville du vælge TypeScript til dit næste projekt? Hvorfor/hvorfor ikke? 8. Hvilke situationer kan du forestille dig TypeScript er særligt værdifuldt? 9. Hvad var det sværeste ved at migrere til TypeScript?
 
-export async function deletePost(id: string) {
-await fetch(`${process.env.FIREBASE_URL}/posts/${id}.json`, {
-method: "DELETE"
-});
+**Sammenlign før og efter:**
 
-revalidatePath("/posts");
-redirect("/posts");
-}
+| Aspekt                 | JavaScript                            | TypeScript                              |
+| ---------------------- | ------------------------------------- | --------------------------------------- |
+| Stavefejl i properties | Opdages ved runtime (eller slet ikke) | Opdages med det samme                   |
+| Manglende properties   | Runtime fejl                          | Compile-time fejl                       |
+| Autocomplete           | Begrænset                             | Fuld understøttelse                     |
+| Refactoring sikkerhed  | Risikabelt                            | Sikkert - TypeScript finder alle steder |
+| Dokumentation          | Skal skrives separat                  | Types fungerer som dokumentation        |
 
-````
+### Hvad har du lært?
 
----
+Skriv 3-5 konkrete ting du har lært om:
 
-## Opgave 5.4: Type Page Components
-
-**Server Components (Pages):**
-
-```typescript
-import { Post, User } from "@/types/types";
-
-interface PostDetailPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function PostDetailPage({ params }: PostDetailPageProps) {
-  const post = await getPost(params.id);
-
-  if (!post) {
-    return <div>Post not found</div>;
-  }
-
-  const user = await getUser(post.uid);
-
-  return <main className="max-w-3xl mx-auto px-4 py-8">{/* ... */}</main>;
-}
-````
-
-**Search Params:**
-
-```typescript
-interface PostsPageProps {
-  searchParams: {
-    filter?: string;
-    sort?: "newest" | "oldest";
-  };
-}
-
-export default async function PostsPage({ searchParams }: PostsPageProps) {
-  const posts = await getPosts();
-
-  // Filter and sort based on searchParams
-  let filteredPosts = posts;
-
-  if (searchParams.filter) {
-    filteredPosts = posts.filter(post => post.caption.toLowerCase().includes(searchParams.filter!.toLowerCase()));
-  }
-
-  if (searchParams.sort === "oldest") {
-    filteredPosts.sort((a, b) => a.createdAt - b.createdAt);
-  } else {
-    filteredPosts.sort((a, b) => b.createdAt - a.createdAt);
-  }
-
-  return <main className="max-w-6xl mx-auto px-4 py-8">{/* ... */}</main>;
-}
-```
+- **Type safety:** Hvordan hjælper det dig?
+- **Development experience:** Hvad blev bedre?
+- **Best practices:** Hvilke patterns vil du bruge fremover?
 
 ---
 
-## Opgave 5.5: Eksempler på TypeScript Fordele
+## Bonus: Avancerede TypeScript Features (Valgfrit)
 
-**Find og dokumentér eksempler hvor TypeScript hjælper:**
+Hvis du vil gå dybere med TypeScript, kan du udforske:
 
-1. **Prop validation:**
-
-   - Hvad sker der hvis du sender forkert prop type?
-   - Skab bevidst en fejl og se TypeScript fejlen
-
-   Eksempel:
-
-   ```typescript
-   // ❌ Dette vil give en TypeScript fejl:
-   <PostCard post={user} user={post} />
-
-   // ✅ Korrekt:
-   <PostCard post={post} user={user} />
-   ```
-
-2. **API responses:**
-
-   - Type Firebase responses
-   - Hvad hvis Firebase returnerer noget uventet?
-
-   ```typescript
-   async function getPosts(): Promise<Post[]> {
-     const response = await fetch(`${process.env.FIREBASE_URL}/posts.json`);
-     const data = await response.json();
-
-     // TypeScript tvinger dig til at håndtere null/undefined
-     if (!data) {
-       return [];
-     }
-
-     const posts: Post[] = Object.keys(data).map(key => ({
-       id: key,
-       ...data[key]
-     }));
-
-     return posts;
-   }
-   ```
-
-3. **Server Actions:**
-
-   - Type FormData ekstraktion
-   - Hvad kunne gå galt uden types?
-
-   ```typescript
-   // Med TypeScript får du autocomplete og type checking:
-   const caption = formData.get("caption") as string;
-
-   // TypeScript advarer hvis du glemmer null check:
-   if (!caption) {
-     throw new Error("Caption is required");
-   }
-   ```
-
-**Opret `TYPESCRIPT_EXAMPLES.md` med:**
-
-- 3 eksempler hvor TypeScript fangede en fejl
-- 3 eksempler hvor TypeScript gjorde koden mere læsbar
-- Screenshots af TypeScript intellisense i VS Code
-
----
-
-## Opgave 5.6: Forbedr med Strenge Types
-
-**Gør types mere præcise:**
-
-1. **Brug literal types:**
-
-```typescript
-export type PostStatus = "draft" | "published" | "archived";
-export type UserRole = "admin" | "user" | "moderator";
-
-export interface Post {
-  id: string;
-  caption: string;
-  image: string;
-  uid: string;
-  createdAt: number;
-  status?: PostStatus;
-}
-
-export interface User {
-  id: string;
-  name: string;
-  title: string;
-  image: string;
-  role?: UserRole;
-}
-```
-
-2. **Brug Generics:**
+### Generics
 
 ```typescript
 async function fetchData<T>(url: string): Promise<T> {
@@ -773,32 +1070,20 @@ const posts = await fetchData<Post[]>(`${process.env.FIREBASE_URL}/posts.json`);
 const user = await fetchData<User>(`${process.env.FIREBASE_URL}/users/${uid}.json`);
 ```
 
-3. **Brug Utility Types:**
+### Utility Types
 
 ```typescript
 // Partial - gør alle properties optional
 type PartialPost = Partial<Post>;
 
-// Anvendelse i update funktioner:
-async function updatePost(id: string, updates: Partial<Post>) {
-  await fetch(`${process.env.FIREBASE_URL}/posts/${id}.json`, {
-    method: "PATCH",
-    body: JSON.stringify(updates)
-  });
-}
-
 // Omit - fjern specific properties
-type PostWithoutId = Omit<Post, "id">;
 type PostCreateData = Omit<Post, "id" | "createdAt">;
 
 // Pick - vælg specific properties
 type PostPreview = Pick<Post, "id" | "caption" | "image">;
-
-// Required - gør alle properties required
-type CompletePost = Required<Post>;
 ```
 
-4. **Custom Type Guards:**
+### Type Guards
 
 ```typescript
 function isPost(obj: any): obj is Post {
@@ -806,74 +1091,18 @@ function isPost(obj: any): obj is Post {
     typeof obj === "object" &&
     typeof obj.id === "string" &&
     typeof obj.caption === "string" &&
-    typeof obj.image === "string" &&
-    typeof obj.uid === "string" &&
-    typeof obj.createdAt === "number"
-  );
-}
-
-function isUser(obj: any): obj is User {
-  return (
-    typeof obj === "object" &&
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.title === "string" &&
     typeof obj.image === "string"
   );
 }
-
-// Brug:
-const data = await response.json();
-if (isPost(data)) {
-  // TypeScript ved nu at data er en Post
-  console.log(data.caption);
-}
 ```
 
----
-
-## Opgave 5.7: Type Component Props Pattern
-
-**Best practices for component props:**
+### Literal Types
 
 ```typescript
-// Base props
-interface BaseComponentProps {
-  className?: string;
-  children?: React.ReactNode;
-}
-
-// Extend base props
-interface ButtonProps extends BaseComponentProps {
-  onClick?: () => void;
-  variant?: "primary" | "secondary" | "danger";
-  disabled?: boolean;
-}
-
-export function Button({ children, onClick, variant = "primary", disabled = false, className = "" }: ButtonProps) {
-  const variantClasses = {
-    primary: "bg-blue-500 hover:bg-blue-600",
-    secondary: "bg-gray-200 hover:bg-gray-300",
-    danger: "bg-red-600 hover:bg-red-700"
-  };
-
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`px-4 py-2 rounded-lg ${variantClasses[variant]} ${className}`}>
-      {children}
-    </button>
-  );
-}
+export type PostStatus = "draft" | "published" | "archived";
+export type UserRole = "admin" | "user" | "moderator";
 ```
 
 ---
 
-## Reflektion
-
-- Hvilke fejl fangede TypeScript under migrationen?
-- Hvordan har TypeScript ændret din udviklererfaring?
-- Hvor tilføjede TypeScript mest værdi? (Components? Server Actions? API calls?)
-- Hvad er udfordringerne ved TypeScript?
-- Ville du bruge TypeScript i alle fremtidige projekter? Hvorfor/hvorfor ikke?
+**Tillykke! Du har nu migreret din Next.js app til TypeScript! 🎉**
