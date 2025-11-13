@@ -177,7 +177,7 @@ import { useState } from "react";
 import { Post } from "@/types/types";
 
 interface FormPostProps {
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => void;
   post?: Post;
 }
 
@@ -202,7 +202,7 @@ export default function FormPost({ action, post }: FormPostProps) {
 import { useState } from "react";
 
 interface DeletePostButtonProps {
-  deleteAction: () => Promise<void>;
+  deleteAction: () => void;
 }
 
 export default function DeletePostButton({ deleteAction }: DeletePostButtonProps) {
@@ -459,7 +459,7 @@ export default async function UpdatePage({ params }: UpdatePageProps) {
 1. **Metadata type:** `export const metadata: Metadata` - Next.js built-in type
 2. **React.ReactNode:** Type for children prop
 3. **Promise params:** `params: Promise<{ id: string }>` - Next.js 15+ kræver await på params
-4. **Server Actions:** `async function(formData: FormData)`
+4. **Server Actions:** `async function(formData: FormData)` - TypeScript infererer automatisk return type
 5. **Type assertions:** `as string` når vi henter fra FormData
 6. **Array typing:** `posts: Post[]` for eksplicit array type
 
@@ -483,7 +483,7 @@ npx tsc --noEmit
 
 1. ✅ Ingen TypeScript kompileringsfejl
 2. ✅ Alle komponenter har typed props
-3. ✅ Server Actions har typed parametre (FormData) og return type (Promise<void>)
+3. ✅ Server Actions har typed parametre (FormData)
 4. ✅ Fetch responses er typed (Post, User)
 5. ✅ Dynamic routes har typed params (Promise<{ id: string }>)
 
@@ -535,7 +535,23 @@ async function actionName(formData: FormData) {
 const caption = formData.get("caption") as string;
 ```
 
-5. **Simple types frem for komplekse:**
+5. **Lad TypeScript inferere return types:**
+
+```typescript
+// ✅ Godt - TypeScript infererer automatisk at async funktioner returnerer Promise
+async function createPost(formData: FormData) {
+  "use server";
+  // ...
+}
+
+// ❌ Unødvendigt - redundant type annotation
+async function createPost(formData: FormData): Promise<void> {
+  "use server";
+  // ...
+}
+```
+
+6. **Simple types frem for komplekse:**
 
 ```typescript
 // ✅ Godt - simpelt og læseligt
@@ -556,13 +572,9 @@ const dataObject: Record<string, Omit<Post, "id">> = ...
 ✅ **Types oprettet:** Post og User interfaces  
 ✅ **Komponenter:** Alle .js filer -> .tsx med typed props  
 ✅ **Pages:** Alle routes typed inkl. dynamic routes  
-✅ **Server Actions:** FormData og Promise<void> types
+✅ **Server Actions:** Typed FormData parametre
 
 **Næste skridt:** Fortsæt med at bruge TypeScript i nye features og nyd fordelene! 🎉
-
-revalidatePath("/posts");
-redirect("/posts");
-}
 
 export async function updatePost(id: string, formData: FormData) {
 const caption = formData.get("caption") as string;

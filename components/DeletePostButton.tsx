@@ -4,7 +4,7 @@
 import { useState } from "react";
 
 interface DeletePostButtonProps {
-  deleteAction: () => Promise<void>;
+  deleteAction: () => void;
 }
 
 export default function DeletePostButton({ deleteAction }: DeletePostButtonProps) {

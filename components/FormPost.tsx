@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Post } from "@/types/types";
 
 interface FormPostProps {
-  action: (formData: FormData) => Promise<void>;
+  action: (formData: FormData) => void;
   post?: Post;
 }
 
