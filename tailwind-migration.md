@@ -1595,20 +1595,24 @@ Nav er en Client Component der bruger `usePathname` hook til at highlight den ak
 <summary><strong>💡 Hints (åbn ét ad gangen hvis du sidder fast)</strong></summary>
 
 **Hint 1: Fixed positioning**
+
 - Brug `fixed top-0 left-0 right-0` til at fastgøre nav i toppen over hele bredden
 - Husk `z-100` for at nav er over andet indhold
 
 **Hint 2: Synlighed**
+
 - Brug `bg-[#2a2a2a]` - lysere end page baggrund `bg-[#1a1a1a]`
 - Tilføj `shadow-md` for dybde
 - Brug `border-b border-gray-700` for synlig bund-border
 
 **Hint 3: Conditional classes**
+
 - Brug template literals: `className={\`base-classes ${condition ? "active" : "hover"}\`}`
 - Sammenlign `pathname === "/"` for aktiv state
 - Aktiv: `bg-black`, Inaktiv hover: `hover:bg-black`
 
 **Hint 4: Gap mellem links**
+
 - Brug `gap-8` for 32px mellemrum mellem nav links
 - Centrer med `justify-center`
 
@@ -1723,19 +1727,20 @@ export default function Nav() {
 
 **Forklaring af CSS → Tailwind mapping:**
 
-| CSS Module | Tailwind Classes | Forklaring |
-|-----------|-----------------|------------|
-| `.nav` position | `fixed top-0 left-0 right-0` | Fixed i toppen over hele bredden |
-| `.nav` layout | `flex justify-center gap-8 p-5` | Centreret flex med 32px gap og 20px padding |
-| `.nav` styling | `bg-[#2a2a2a] border-b border-gray-700 shadow-md` | Lysere baggrund, synlig border og shadow |
-| `.nav` z-index | `z-100` | Z-index 100 for at være over indhold |
-| `.navLink` base | `px-4 py-2 rounded-lg font-medium transition-all text-[#ededed]` | Padding, border-radius, font, transitions, lys tekst |
-| `.active` | `bg-black` (conditional) | Mørk baggrund for aktiv link |
-| `.navLink:hover` | `hover:bg-black` (conditional) | Mørk baggrund ved hover på inaktiv link |
+| CSS Module       | Tailwind Classes                                                 | Forklaring                                           |
+| ---------------- | ---------------------------------------------------------------- | ---------------------------------------------------- |
+| `.nav` position  | `fixed top-0 left-0 right-0`                                     | Fixed i toppen over hele bredden                     |
+| `.nav` layout    | `flex justify-center gap-8 p-5`                                  | Centreret flex med 32px gap og 20px padding          |
+| `.nav` styling   | `bg-[#2a2a2a] border-b border-gray-700 shadow-md`                | Lysere baggrund, synlig border og shadow             |
+| `.nav` z-index   | `z-100`                                                          | Z-index 100 for at være over indhold                 |
+| `.navLink` base  | `px-4 py-2 rounded-lg font-medium transition-all text-[#ededed]` | Padding, border-radius, font, transitions, lys tekst |
+| `.active`        | `bg-black` (conditional)                                         | Mørk baggrund for aktiv link                         |
+| `.navLink:hover` | `hover:bg-black` (conditional)                                   | Mørk baggrund ved hover på inaktiv link              |
 
 **Vigtige læringspunkter:**
 
 1. **Conditional classes med template literals:**
+
    ```javascript
    className={`base-classes ${condition ? "class-if-true" : "class-if-false"}`}
    ```
@@ -1743,6 +1748,7 @@ export default function Nav() {
 2. **Fixed positioning:** `fixed top-0 left-0 right-0` dækker fuld bredde
 3. **Z-index:** `z-100` sikrer nav er over andet indhold
 4. **Synlighed på dark theme:**
+
    - Lysere baggrund end page: `bg-[#2a2a2a]` vs `bg-[#1a1a1a]`
    - Shadow: `shadow-md` giver dybde
    - Border: `border-gray-700` mere synlig end `border-gray-800`
@@ -1752,11 +1758,13 @@ export default function Nav() {
 **Trin for at færdiggøre migreringen:**
 
 1. **Fjern CSS Module importen:**
+
    ```javascript
    import styles from "./Nav.module.css";
    ```
 
 2. **Slet CSS Module filen:**
+
    ```bash
    rm components/Nav.module.css
    ```
