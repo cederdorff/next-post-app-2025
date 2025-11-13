@@ -1,8 +1,13 @@
 // Server Component - no "use client" needed
 import Image from "next/image";
 import UserAvatar from "./UserAvatar";
+import { Post } from "@/types/types";
 
-export default function PostCard({ post }) {
+interface PostCardProps {
+  post: Post;
+}
+
+export default function PostCard({ post }: PostCardProps) {
   return (
     <article className="flex flex-col gap-3 p-5 rounded-xl bg-[#2a2a2a] transition-all cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
       {/* Async Server Component inside */}

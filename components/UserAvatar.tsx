@@ -1,12 +1,17 @@
 // Async Server Component - fetches user data on the server
 import Image from "next/image";
+import { User } from "@/types/types";
 
-export default async function UserAvatar({ uid }) {
+interface UserAvatarProps {
+  uid: string;
+}
+
+export default async function UserAvatar({ uid }: UserAvatarProps) {
   const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
 
   // Fetch user data - runs on server, not sent to client
   const response = await fetch(url);
-  const user = await response.json();
+  const user: User = await response.json();
 
   return (
     <div className="flex items-center gap-3 mb-3">

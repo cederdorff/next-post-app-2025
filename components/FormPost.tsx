@@ -3,8 +3,14 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { Post } from "@/types/types";
 
-export default function FormPost({ action, post }) {
+interface FormPostProps {
+  action: (formData: FormData) => Promise<void>;
+  post?: Post;
+}
+
+export default function FormPost({ action, post }: FormPostProps) {
   // Local state for image preview
   const [image, setImage] = useState(post?.image);
 

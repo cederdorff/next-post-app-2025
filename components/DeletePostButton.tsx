@@ -3,7 +3,11 @@
 
 import { useState } from "react";
 
-export default function DeletePostButton({ deleteAction }) {
+interface DeletePostButtonProps {
+  deleteAction: () => Promise<void>;
+}
+
+export default function DeletePostButton({ deleteAction }: DeletePostButtonProps) {
   const [showModal, setShowModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 

@@ -1,17 +1,22 @@
 import FormPost from "@/components/FormPost";
 import { redirect } from "next/navigation";
+import { Post } from "@/types/types";
 
-export default async function UpdatePage({ params }) {
+interface UpdatePageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function UpdatePage({ params }: UpdatePageProps) {
   const { id } = await params;
   const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
   const response = await fetch(url);
-  const post = await response.json();
+  const post: Post = await response.json();
 
   // Server Action to handle post update
-  async function updatePost(formData) {
+  async function updatePost(formData: FormData) {
     "use server"; // Mark as server action - runs on server only
-    const caption = formData.get("caption");
-    const image = formData.get("image");
+    const caption = formData.get("caption") as string;
+    const image = formData.get("image") as string;
 
     const response = await fetch(url, {
       method: "PATCH",

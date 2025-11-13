@@ -1,5 +1,6 @@
 import PostCard from "@/components/PostCard";
 import Link from "next/link";
+import { Post } from "@/types/types";
 
 // Server Component
 export default async function Home() {
@@ -7,11 +8,11 @@ export default async function Home() {
   const response = await fetch(url);
   const dataObject = await response.json();
 
-  const posts = Object.keys(dataObject).map(key => ({
+  // Convert Firebase object to array of posts
+  const posts: Post[] = Object.keys(dataObject).map(key => ({
     id: key,
     ...dataObject[key]
-  })); // Convert object to array
-  console.log(posts);
+  }));
 
   return (
     <main className="min-h-screen pt-20 pb-10 px-5">

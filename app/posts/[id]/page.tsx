@@ -2,12 +2,17 @@ import PostCard from "@/components/PostCard";
 import DeletePostButton from "@/components/DeletePostButton";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Post } from "@/types/types";
 
-export default async function PostPage({ params }) {
+interface PostPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function PostPage({ params }: PostPageProps) {
   const { id } = await params;
   const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
   const response = await fetch(url);
-  const post = await response.json();
+  const post: Post = await response.json();
 
   // Server Action to handle post deletion
   async function deletePost() {

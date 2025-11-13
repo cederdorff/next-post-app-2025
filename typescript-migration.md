@@ -8,28 +8,62 @@ I dette modul vil du migrere applikationen fra JavaScript til TypeScript. Du vil
 
 ## Opgave 5.1: Installer TypeScript
 
-**Installation:**
+**Trin 1: Installation af dependencies**
 
 ```bash
 npm install -D typescript @types/react @types/node
 ```
 
-**Automatisk konfiguration:**
+**Trin 2: Opret TypeScript konfiguration**
 
-Omdøb en `.js` fil til `.tsx` - Next.js opretter automatisk `tsconfig.json`.
+Opret `tsconfig.json` i projektets rod:
 
-For eksempel:
+```json
+{
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+**Trin 3: Start med at omdøbe en fil**
+
+Omdøb en `.js` fil til `.tsx` for at aktivere TypeScript:
 
 ```bash
 mv components/Nav.js components/Nav.tsx
 ```
 
-Start development server: `npm run dev`
+**Trin 4: Start development server**
 
-Next.js vil automatisk:
+```bash
+npm run dev
+```
 
-- Oprette `tsconfig.json` med optimale indstillinger
-- Oprette `next-env.d.ts` med type definitions
+Next.js vil nu automatisk oprette `next-env.d.ts` med type definitions.
+
+**Vigtigt:** `allowJs: true` i `tsconfig.json` betyder at JavaScript og TypeScript kan eksistere side om side, så du kan migrere gradvist fil for fil.
 
 ---
 
@@ -56,150 +90,508 @@ export interface User {
 }
 ```
 
-2. **Migrer komponenter én ad gangen:**
+2. **Omdøb og migrer komponenter én ad gangen:**
 
-**Start med små komponenter (`UserAvatar.tsx`):**
+```bash
+# Omdøb komponent filer til .tsx
+mv components/UserAvatar.js components/UserAvatar.tsx
+mv components/PostCard.js components/PostCard.tsx
+mv components/FormPost.js components/FormPost.tsx
+mv components/DeletePostButton.js components/DeletePostButton.tsx
+```
+
+**UserAvatar.tsx** - Async Server Component:
 
 ```typescript
+// Async Server Component - fetches user data on the server
+import Image from "next/image";
 import { User } from "@/types/types";
 
 interface UserAvatarProps {
-  user: User;
-  size?: "small" | "medium" | "large";
+  uid: string;
 }
 
-export default function UserAvatar({ user, size = "medium" }: UserAvatarProps) {
-  const sizeClasses = {
-    small: "w-8 h-8",
-    medium: "w-12 h-12",
-    large: "w-16 h-16"
-  };
+export default async function UserAvatar({ uid }: UserAvatarProps) {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
 
-  return <img className={`${sizeClasses[size]} rounded-full object-cover`} src={user.image} alt={user.name} />;
+  // Fetch user data - runs on server, not sent to client
+  const response = await fetch(url);
+  const user: User = await response.json();
+
+  return (
+    <div className="flex items-center gap-3 mb-3">
+      <Image
+        src={user.image}
+        alt={user.name}
+        width={40}
+        height={40}
+        className="w-10 h-10 rounded-full object-cover shrink-0"
+      />
+      <span className="flex flex-col gap-0.5">
+        <h3 className="text-sm font-semibold m-0 text-[#ededed] leading-tight">{user.name}</h3>
+        <p className="text-xs m-0 text-gray-400 leading-tight">{user.title}</p>
+      </span>
+    </div>
+  );
 }
 ```
 
-**Migrer PostCard komponenten:**
+**PostCard.tsx** - Server Component:
 
 ```typescript
-import { Post, User } from "@/types/types";
-import Link from "next/link";
+// Server Component - no "use client" needed
+import Image from "next/image";
+import UserAvatar from "./UserAvatar";
+import { Post } from "@/types/types";
 
 interface PostCardProps {
   post: Post;
-  user: User;
 }
 
-export default function PostCard({ post, user }: PostCardProps) {
-  return <article className="bg-white rounded-lg shadow-md p-6">{/* ... */}</article>;
+export default function PostCard({ post }: PostCardProps) {
+  return (
+    <article className="flex flex-col gap-3 p-5 rounded-xl bg-[#2a2a2a] transition-all cursor-pointer shadow-[0_2px_8px_rgba(0,0,0,0.3)] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+      {/* Async Server Component inside */}
+      <UserAvatar uid={post.uid} />
+      <Image
+        src={post.image}
+        alt={post.caption}
+        className="w-full h-[250px] object-cover rounded-lg"
+        width={500}
+        height={500}
+      />
+      <h3 className="text-base font-medium text-[#ededed] mt-1 leading-relaxed">{post.caption}</h3>
+    </article>
+  );
 }
 ```
 
-**Migrer FormPost komponenten:**
+**FormPost.tsx** - Client Component:
 
 ```typescript
+// Client Component - needed for useState to manage image preview
 "use client";
-import { useFormState } from "react-dom";
+
+import Image from "next/image";
+import { useState } from "react";
+import { Post } from "@/types/types";
 
 interface FormPostProps {
+  action: (formData: FormData) => Promise<void>;
   post?: Post;
-  action: (prevState: any, formData: FormData) => Promise<void>;
 }
 
-export default function FormPost({ post, action }: FormPostProps) {
-  const [state, formAction] = useFormState(action, null);
+export default function FormPost({ action, post }: FormPostProps) {
+  // Local state for image preview
+  const [image, setImage] = useState(post?.image);
 
   return (
-    <form action={formAction} className="space-y-4">
-      {/* ... */}
+    <form action={action} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4 items-start max-w-[800px] my-5">
+      {/* Form fields... */}
     </form>
   );
 }
 ```
 
-3. **Tilføj return types til funktioner:**
+**DeletePostButton.tsx** - Client Component:
 
 ```typescript
-async function getPosts(): Promise<Post[]> {
-  const response = await fetch(`${process.env.FIREBASE_URL}/posts.json`);
-  const data = await response.json();
-  // ...
-  return posts;
+// Client Component - needed for useState to manage modal visibility
+"use client";
+
+import { useState } from "react";
+
+interface DeletePostButtonProps {
+  deleteAction: () => Promise<void>;
 }
 
-async function getUser(uid: string): Promise<User | null> {
-  const response = await fetch(`${process.env.FIREBASE_URL}/users/${uid}.json`);
-  const user = await response.json();
-  return user;
+export default function DeletePostButton({ deleteAction }: DeletePostButtonProps) {
+  const [showModal, setShowModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleConfirmDelete() {
+    setIsDeleting(true);
+    await deleteAction();
+    // Redirect happens in Server Action
+  }
+
+  return (
+    <>
+      <button type="button" onClick={() => setShowModal(true)}>
+        Delete post
+      </button>
+      {showModal && <div>{/* Modal content... */}</div>}
+    </>
+  );
 }
+```
+
+**Vigtigt:** Bemærk forskellen mellem Server og Client Components:
+
+- Server Components: Kan være `async` og fetche data direkte
+- Client Components: Skal markeres med `"use client"` og bruger hooks som `useState`
+
+---
+
+## Opgave 5.3: Migrer Page Filer
+
+Nu skal vi migrere page filerne i `app/` mappen til TypeScript.
+
+**Trin 1: Omdøb page filer**
+
+```bash
+# Main pages
+mv app/layout.js app/layout.tsx
+mv app/page.js app/page.tsx
+
+# Posts pages
+mv app/posts/page.js app/posts/page.tsx
+mv app/posts/create/page.js app/posts/create/page.tsx
+
+# Dynamic routes (brug escaped brackets i zsh)
+mv app/posts/\[id\]/page.js app/posts/\[id\]/page.tsx
+mv app/posts/\[id\]/update/page.js app/posts/\[id\]/update/page.tsx
+```
+
+**Trin 2: Tilføj types til layout.tsx**
+
+```typescript
+import "./globals.css";
+import Nav from "@/components/Nav";
+import { Metadata } from "next";
+
+// Metadata for SEO
+export const metadata: Metadata = {
+  title: "Next.js Post App",
+  description: "A modern post application built with Next.js 16"
+};
+
+interface RootLayoutProps {
+  children: React.ReactNode;
+}
+
+// Root Layout - wraps all pages
+export default function RootLayout({ children }: RootLayoutProps) {
+  return (
+    <html lang="en">
+      <body className="bg-[#1a1a1a]">
+        <Nav />
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+**Trin 3: Tilføj types til posts/page.tsx**
+
+```typescript
+import PostCard from "@/components/PostCard";
+import Link from "next/link";
+import { Post } from "@/types/types";
+
+// Server Component
+export default async function Home() {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const response = await fetch(url);
+  const dataObject = await response.json();
+
+  // Convert Firebase object to array of posts
+  const posts: Post[] = Object.keys(dataObject).map(key => ({
+    id: key,
+    ...dataObject[key]
+  }));
+
+  return (
+    <main className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[1400px] mx-auto px-5">
+        <section className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 py-5">
+          {posts.map(post => (
+            <Link href={`/posts/${post.id}`} key={post.id}>
+              <PostCard post={post} />
+            </Link>
+          ))}
+        </section>
+      </div>
+    </main>
+  );
+}
+```
+
+**Trin 4: Tilføj types til posts/create/page.tsx**
+
+```typescript
+import { redirect } from "next/navigation";
+import FormPost from "@/components/FormPost";
+
+export default function CreatePage() {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+
+  // Server Action to handle post creation
+  async function createPost(formData: FormData) {
+    "use server";
+    const caption = formData.get("caption") as string;
+    const image = formData.get("image") as string;
+
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        caption,
+        image,
+        uid: "OPPe5jue2Ghxx3mtnxevB5FwCYe2",
+        createdAt: new Date().toISOString()
+      })
+    });
+
+    if (response.ok) {
+      redirect("/posts");
+    }
+  }
+
+  return (
+    <section className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[900px] mx-auto py-10 px-5">
+        <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">Create New Post</h1>
+        <FormPost action={createPost} />
+      </div>
+    </section>
+  );
+}
+```
+
+**Trin 5: Tilføj types til posts/[id]/page.tsx**
+
+```typescript
+import PostCard from "@/components/PostCard";
+import DeletePostButton from "@/components/DeletePostButton";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Post } from "@/types/types";
+
+interface PostPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function PostPage({ params }: PostPageProps) {
+  const { id } = await params;
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const response = await fetch(url);
+  const post: Post = await response.json();
+
+  // Server Action to handle post deletion
+  async function deletePost() {
+    "use server";
+    const response = await fetch(url, {
+      method: "DELETE"
+    });
+    if (response.ok) {
+      redirect("/posts");
+    }
+  }
+
+  return (
+    <main className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[800px] mx-auto py-10 px-5">
+        <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">{post.caption}</h1>
+        <div className="bg-[#2a2a2a] p-6 rounded-xl mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+          <PostCard post={post} />
+        </div>
+        <div className="flex gap-4 mt-5">
+          <DeletePostButton deleteAction={deletePost} />
+          <Link href={`/posts/${id}/update`}>
+            <button className="px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all bg-[#ededed] text-black hover:opacity-85 hover:-translate-y-px">
+              Update post
+            </button>
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+```
+
+**Trin 6: Tilføj types til posts/[id]/update/page.tsx**
+
+```typescript
+import FormPost from "@/components/FormPost";
+import { redirect } from "next/navigation";
+import { Post } from "@/types/types";
+
+interface UpdatePageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function UpdatePage({ params }: UpdatePageProps) {
+  const { id } = await params;
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const response = await fetch(url);
+  const post: Post = await response.json();
+
+  // Server Action to handle post update
+  async function updatePost(formData: FormData) {
+    "use server";
+    const caption = formData.get("caption") as string;
+    const image = formData.get("image") as string;
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      body: JSON.stringify({ caption, image })
+    });
+
+    if (response.ok) {
+      redirect(`/posts/${id}`);
+    }
+  }
+
+  return (
+    <section className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[900px] mx-auto py-10 px-5">
+        <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">Update Post</h1>
+        <FormPost action={updatePost} post={post} />
+      </div>
+    </section>
+  );
+}
+```
+
+**Vigtige TypeScript koncepter brugt:**
+
+1. **Metadata type:** `export const metadata: Metadata` - Next.js built-in type
+2. **React.ReactNode:** Type for children prop
+3. **Promise params:** `params: Promise<{ id: string }>` - Next.js 15+ kræver await på params
+4. **Server Actions:** `async function(formData: FormData)`
+5. **Type assertions:** `as string` når vi henter fra FormData
+6. **Array typing:** `posts: Post[]` for eksplicit array type
+
+---
+
+## Opgave 5.4: Test og Verificer
+
+**Kør development server:**
+
+```bash
+npm run dev
+```
+
+**Tjek for TypeScript fejl:**
+
+```bash
+npx tsc --noEmit
+```
+
+**Hvad du skal verificere:**
+
+1. ✅ Ingen TypeScript kompileringsfejl
+2. ✅ Alle komponenter har typed props
+3. ✅ Server Actions har typed parametre (FormData) og return type (Promise<void>)
+4. ✅ Fetch responses er typed (Post, User)
+5. ✅ Dynamic routes har typed params (Promise<{ id: string }>)
+
+**TypeScript fordele du nu har:**
+
+- **Type safety:** Fanger fejl ved compile-time i stedet for runtime
+- **IntelliSense:** Bedre autocomplete i VS Code
+- **Refactoring:** Trygt at omdøbe properties - TypeScript finder alle steder
+- **Dokumentation:** Types fungerer som levende dokumentation
+- **Mindre bugs:** Fanger null/undefined fejl før de når produktion
+
+---
+
+## Opgave 5.5: Best Practices
+
+**TypeScript conventions vi har brugt:**
+
+1. **Interface for objekter:**
+
+```typescript
+interface Post {
+  id: string;
+  caption: string;
+  // ...
+}
+```
+
+2. **Props interfaces:**
+
+```typescript
+interface PostCardProps {
+  post: Post;
+}
+```
+
+3. **Server Actions pattern:**
+
+```typescript
+async function actionName(formData: FormData) {
+  "use server";
+  const field = formData.get("field") as string;
+  // ...
+}
+```
+
+4. **Type assertions ved FormData:**
+
+```typescript
+const caption = formData.get("caption") as string;
+```
+
+5. **Simple types frem for komplekse:**
+
+```typescript
+// ✅ Godt - simpelt og læseligt
+const posts: Post[] = Object.keys(dataObject).map(...)
+
+// ❌ Undgå - for komplekst
+const dataObject: Record<string, Omit<Post, "id">> = ...
 ```
 
 ---
 
-## Opgave 5.3: Type Server Actions
+## Opsummering
 
-**Server Actions med TypeScript:**
+**Du har nu migreret hele applikationen til TypeScript!**
 
-```typescript
-"use server";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+✅ **Installeret:** TypeScript + type definitions  
+✅ **Konfigureret:** tsconfig.json + next-env.d.ts  
+✅ **Types oprettet:** Post og User interfaces  
+✅ **Komponenter:** Alle .js filer -> .tsx med typed props  
+✅ **Pages:** Alle routes typed inkl. dynamic routes  
+✅ **Server Actions:** FormData og Promise<void> types
 
-export async function createPost(formData: FormData): Promise<void> {
-  const caption = formData.get("caption") as string;
-  const image = formData.get("image") as string;
-  const uid = formData.get("uid") as string;
+**Næste skridt:** Fortsæt med at bruge TypeScript i nye features og nyd fordelene! 🎉
 
-  if (!caption || !image || !uid) {
-    throw new Error("Missing required fields");
-  }
-
-  const newPost = {
-    caption,
-    image,
-    uid,
-    createdAt: Date.now()
-  };
-
-  await fetch(`${process.env.FIREBASE_URL}/posts.json`, {
-    method: "POST",
-    body: JSON.stringify(newPost),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-
-  revalidatePath("/posts");
-  redirect("/posts");
+revalidatePath("/posts");
+redirect("/posts");
 }
 
-export async function updatePost(id: string, formData: FormData): Promise<void> {
-  const caption = formData.get("caption") as string;
-  const image = formData.get("image") as string;
+export async function updatePost(id: string, formData: FormData) {
+const caption = formData.get("caption") as string;
+const image = formData.get("image") as string;
 
-  const updates = {
-    caption,
-    image
-  };
+const updates = {
+caption,
+image
+};
 
-  await fetch(`${process.env.FIREBASE_URL}/posts/${id}.json`, {
-    method: "PATCH",
-    body: JSON.stringify(updates)
-  });
+await fetch(`${process.env.FIREBASE_URL}/posts/${id}.json`, {
+method: "PATCH",
+body: JSON.stringify(updates)
+});
 
-  revalidatePath("/posts");
-  redirect(`/posts/${id}`);
+revalidatePath("/posts");
+redirect(`/posts/${id}`);
 }
 
-export async function deletePost(id: string): Promise<void> {
-  await fetch(`${process.env.FIREBASE_URL}/posts/${id}.json`, {
-    method: "DELETE"
-  });
+export async function deletePost(id: string) {
+await fetch(`${process.env.FIREBASE_URL}/posts/${id}.json`, {
+method: "DELETE"
+});
 
-  revalidatePath("/posts");
-  redirect("/posts");
+revalidatePath("/posts");
+redirect("/posts");
 }
-```
+
+````
 
 ---
 
@@ -227,7 +619,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   return <main className="max-w-3xl mx-auto px-4 py-8">{/* ... */}</main>;
 }
-```
+````
 
 **Search Params:**
 
@@ -376,7 +768,7 @@ const user = await fetchData<User>(`${process.env.FIREBASE_URL}/users/${uid}.jso
 type PartialPost = Partial<Post>;
 
 // Anvendelse i update funktioner:
-async function updatePost(id: string, updates: Partial<Post>): Promise<void> {
+async function updatePost(id: string, updates: Partial<Post>) {
   await fetch(`${process.env.FIREBASE_URL}/posts/${id}.json`, {
     method: "PATCH",
     body: JSON.stringify(updates)
