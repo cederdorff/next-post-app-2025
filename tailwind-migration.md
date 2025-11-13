@@ -6,6 +6,40 @@ I dette modul vil du migrere hele applikationen fra CSS Modules til Tailwind CSS
 
 ---
 
+## Opgave 4.0: Opret et nyt branch til migrering
+
+**Før du starter migreringen, opret et nyt branch så du kan arbejde sikkert:**
+
+1. **Sørg for at du er på `main` branch og har de seneste ændringer:**
+
+```bash
+git checkout main
+git pull
+```
+
+2. **Opret et nyt branch til Tailwind migrering:**
+
+```bash
+git checkout -b tailwind-migration
+```
+
+3. **Verificer at du er på det nye branch:**
+
+```bash
+git branch
+```
+
+Du skulle gerne se `* tailwind-migration` (stjernen viser hvilket branch du er på).
+
+**Hvorfor et nyt branch?**
+
+- Dit `main` branch forbliver uændret
+- Du kan eksperimentere frit uden risiko
+- Nemt at gå tilbage hvis noget går galt
+- Let at merge ændringer tilbage til `main` når du er færdig
+
+---
+
 ## Opgave 4.1: Installer Tailwind og VS Code Extension
 
 **VIGTIGT: Installer VS Code Extension først!**
@@ -62,7 +96,7 @@ Start development server: `npm run dev` og tjek at styling virker.
 
 **Test VS Code Extension:**
 
-Når du skriver `className="bg-` skulle du nu se autocomplete suggestions med farve preview! 🎨
+Når du skriver `className="bg-` skulle du nu se autocomplete suggestions med farve preview!
 
 Erstat nu `app/layout.js` med:
 
@@ -114,7 +148,7 @@ Tailwind er et "utility-first" CSS framework. I stedet for at skrive custom CSS,
 9. `w-full` - Fuld bredde
 10. `gap-4` - Mellemrum mellem elementer
 
-**Med disse 10 classes kan du style 80% af din app! 🎨**
+**Med disse 10 classes kan du style 80% af din app!**
 
 **Design strategi:**
 
@@ -402,8 +436,8 @@ export default function Home() {
 **Bemærk ændringerne:**
 
 - ❌ Fjernet `import Image from "next/image"` og Next.js logoet (ikke nødvendigt for denne app)
-- ✅ Ændret `<div>` til `<main>` for bedre semantisk HTML
-- ✅ Bruger `Link` komponent i stedet for `<a>` tag for interne links
+- Ændret `<div>` til `<main>` for bedre semantisk HTML
+- Bruger `Link` komponent i stedet for `<a>` tag for interne links
 
 **Trin 4: Fjern CSS Module importen**
 
@@ -595,7 +629,7 @@ export default async function UserAvatar({ uid }) {
    rm components/UserAvatar.module.css
    ```
 
-**⚠️ Vigtig note om tekstfarver:**
+**VIGTIG note om tekstfarver:**
 
 Selv om du har tilføjet `text-[#ededed]` til `h3` (user.name), kan det være at teksten stadig vises mørk i browseren. Det er fordi PostCard komponenten har CSS Module styling der overskriver dette. Når du migrerer PostCard til Tailwind i næste opgave, vil den lyse tekstfarve slå igennem korrekt!
 
@@ -806,7 +840,7 @@ export default function PostCard({ post }) {
 
 ## Opgave 4.6: Migrer FormPost Komponenten
 
-**Forms i Tailwind - med responsive design! 📱💻**
+**Forms i Tailwind - med responsive design!**
 
 FormPost er en form komponent med grid layout der skal fungere både på mobil og desktop.
 
@@ -1531,7 +1565,7 @@ export default async function UpdatePage({ params }) {
 
    - Slet `import styles from "./page.module.css";` fra hver fil
 
-2. **⚠️ VIGTIGT: Slet alle 4 CSS Module filer:**
+2. **VIGTIGT: Slet alle 4 CSS Module filer:**
 
    ```bash
    rm app/posts/page.module.css
@@ -2135,9 +2169,9 @@ rm components/DeletePostButton.module.css
 
 **Test i browseren:**
 
-- 📱 **Mobil** - Resize browser vinduet til mobil størrelse
-- 💻 **Desktop** - Test på fuld skærm
-- 🎨 **Styling** - Sammenlign med original design
+- **Mobil** - Resize browser vinduet til mobil størrelse
+- **Desktop** - Test på fuld skærm
+- **Styling** - Sammenlign med original design
 
 **Almindelige problemer:**
 
@@ -2145,13 +2179,13 @@ rm components/DeletePostButton.module.css
 - Missing transitions → `transition-all` mangler på hover elementer
 - Animations virker ikke → tjek at keyframes er tilføjet til `globals.css`
 
-**Når alt fungerer korrekt, er du færdig med migreringen!** 🎉
+**Når alt fungerer korrekt, er du færdig med migreringen!**
 
 ---
 
 ## Opgave 5: Slet Alle CSS Module Filer
 
-**Nu hvor alle komponenter og sider bruger Tailwind, er det tid til oprydning:**
+**Nu hvor alle komponenter og sider bruger Tailwind, er det tid til oprydning (hvis du ikke allerede har slettet filerne undervejs):**
 
 **1. Tjek at alt fungerer:**
 
@@ -2159,7 +2193,7 @@ rm components/DeletePostButton.module.css
 - Gennemgå alle sider og komponenter
 - Verificer at styling ser korrekt ud
 
-**2. Slet CSS Module filer:**
+**2. Slet CSS Module filer (hvis de stadig findes):**
 
 ```bash
 # I terminal, slet alle .module.css filer:
@@ -2264,91 +2298,18 @@ className = "flex-col md:flex-row";
 
 ## Konklusion
 
-npm run build
-
-````
-
-Hvis der er fejl, har du måske glemt at migrere en komponent!
-
-**5. Commit dine ændringer:**
-
-```bash
-git add .
-git commit -m "Migrated from CSS Modules to Tailwind CSS"
-````
-
----
-
-## Opgave 4.13: Tilføj Forbedringer
-
-**Nu hvor du har Tailwind, kan du nemt justere og forbedre:**
-
-1. **Hover effects er allerede implementeret:**
-
-   ```javascript
-   // PostCard hover effect
-   className = "hover:-translate-y-1 hover:shadow-lg transition-all";
-
-   // Button hover effect
-   className = "hover:opacity-85 hover:-translate-y-px";
-   ```
-
-2. **Juster spacing efter behov:**
-
-   ```javascript
-   // Prøv forskellige gap værdier
-   className = "gap-3 md:gap-4 lg:gap-6";
-
-   // Responsive padding
-   className = "p-4 md:p-6 lg:p-8";
-   ```
-
-3. **Eksperimenter med farver:**
-
-   ```javascript
-   // Skift primær farve fra sort til blå
-   className = "bg-blue-600 text-white hover:bg-blue-700";
-
-   // Eller grøn
-   className = "bg-green-600 text-white hover:bg-green-700";
-   ```
-
-4. **Fine-tune border radius:**
-
-   ```javascript
-   // Fra rounded-xl (12px) til rounded-2xl (16px)
-   className = "rounded-2xl";
-
-   // Eller mere kantede hjørner
-   className = "rounded-md";
-   ```
-
-**5. Tilføj nye responsive breakpoints:**
-
-```javascript
-// Skjul på mobil, vis på tablet
-className = "hidden md:block";
-
-// Forskellige layouts på mobil vs desktop
-className = "flex-col md:flex-row";
-```
-
----
-
-## Konklusion
-
 🎉 **Tillykke! Du har nu migreret hele Next.js Post App fra CSS Modules til Tailwind CSS!**
 
 **Hvad har du lært:**
 
-- ✅ At installere og konfigurere Tailwind CSS i Next.js 16
-- ✅ At konvertere CSS Module styling til Tailwind utility classes
-- ✅ Responsive design med Tailwind breakpoints (`md:`, `lg:`, etc.)
-- ✅ Custom animations og keyframes
-- ✅ Dark theme styling med custom farver
-- ✅ Grid layouts med `repeat(auto-fill, minmax())`
-- ✅ Hover states og transitions
-- ✅ Modal dialogs med overlay og animations
+- At installere og konfigurere Tailwind CSS i Next.js 16
+- At konvertere CSS Module styling til Tailwind utility classes
+- Responsive design med Tailwind breakpoints (`md:`, `lg:`, etc.)
+- Custom animations og keyframes
+- Dark theme styling med custom farver
+- Grid layouts med `repeat(auto-fill, minmax())`
+- Hover states og transitions
+- Modal dialogs med overlay og animations
 
 **Refleksion:**
 
@@ -2362,133 +2323,3 @@ className = "flex-col md:flex-row";
 - Tilføj flere responsive breakpoints
 - Prøv at designe nye komponenter fra bunden med Tailwind
 - Del dine erfaringer med klassen!
-
-- Hvordan påvirker Tailwind din udviklingshastighed?
-- Hvad er fordele og ulemper ved utility-first CSS?
-- Hvordan var det at slippe af med alle CSS Module filerne?
-- Hvad er fordele/ulemper ved Tailwind vs CSS Modules?
-- Hvornår ville du bruge Tailwind? Hvornår CSS Modules?
-
----
-
-## Opgave 4.13: Eksperimenter og Lær Ved at Prøve (ekstra)
-
-**Nu har du migreret hele appen - tid til at eksperimentere! 🔬**
-
-Tailwind lærer man bedst ved at prøve sig frem. Lav følgende eksperimenter:
-
-**Eksperiment 1: Farve-variationer**
-
-Tag en komponent (f.eks. en knap) og prøv forskellige farve-kombinationer:
-
-- Prøv `bg-blue-500`, `bg-blue-600`, `bg-blue-700` - se forskellen
-- Prøv `bg-red-500`, `bg-green-500`, `bg-purple-500`
-- Kombiner med `hover:bg-[farve]-700`
-
-**Hvad lærte du om farve-nuancer?**
-
-**Eksperiment 2: Spacing**
-
-Tag PostCard komponenten:
-
-- Prøv at ændre `p-6` til `p-2`, `p-4`, `p-8`, `p-12`
-- Prøv at ændre `gap-3` til `gap-1`, `gap-6`, `gap-10`
-- Prøv at ændre `mb-4` til `mb-2`, `mb-8`
-
-**Hvad er den rigtige mængde spacing? Hvorfor?**
-
-**Eksperiment 3: Responsive design**
-
-Tag posts liste siden:
-
-- Prøv `grid-cols-1 md:grid-cols-2`
-- Prøv `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
-- Prøv `grid-cols-2 md:grid-cols-3 lg:grid-cols-4`
-
-**Resize browservinduet - hvad sker der? Hvilken løsning er bedst?**
-
-**Eksperiment 4: Hover effekter**
-
-Tilføj kreative hover effekter til dine cards:
-
-```javascript
-// Prøv disse kombinationer:
-className = "hover:scale-105 transition-transform";
-className = "hover:shadow-2xl transition-shadow";
-className = "hover:-translate-y-1 hover:shadow-xl transition-all";
-className = "hover:rotate-1 transition-transform";
-```
-
-**Hvilke effekter virker bedst? Hvilke er for meget?**
-
-**Eksperiment 5: Lav en custom komponent**
-
-Design en ny komponent fra bunden med kun Tailwind:
-
-- En "Featured Post" card med større billede
-- En "User Stats" card med tal og ikoner
-- En "Loading Skeleton" komponent
-
-**Tvang dig selv til IKKE at se på eksisterende kode - brug kun:**
-
-- Tailwind docs
-- VS Code IntelliSense
-- Din hukommelse fra tidligere opgaver
-
-**Refleksion:**
-
-- Hvilke classes husker du uden at slå op?
-- Hvilke classes skal du stadig google?
-- Hvad er nemmere med Tailwind vs CSS Modules?
-- Hvad er sværere?
-
----
-
-## Opgave 4.15: Redesign Challenge (ekstra)
-
-**Ultimate udfordring: Redesign hele appen! 🎨**
-
-Nu hvor du kan Tailwind, redesign hele din post app til at se anderledes ud:
-
-**Krav:**
-
-1. **Vælg et farve-tema:**
-
-   - Skift fra blå til en anden primær farve (grøn, lilla, rød, etc.)
-   - Brug forskellige nuancer konsistent
-
-2. **Eksperimenter med layout:**
-
-   - Skal posts være i cards eller liste-visning?
-   - Skal navbar være i toppen eller siden?
-   - Skal der være mere/mindre spacing?
-
-3. **Tilføj personlighed:**
-   - Animationer (hover effects, transitions)
-   - Afrundinger (skarpe hjørner vs afrundede)
-   - Skygger (ingen, subtile eller dramatiske)
-
-**Regler:**
-
-- ✅ Du MÅ ændre alt design
-- ✅ Du MÅ eksperimentere vildt
-- ❌ Du må IKKE bruge custom CSS (kun Tailwind classes)
-- ❌ Du må IKKE ødelægge funktionalitet
-
-**Inspiration:**
-
-- Se på https://dribbble.com for design inspiration
-- Se på https://tailwindui.com for komponent ideer
-- Tænk på apps du bruger dagligt - hvad kan du lære?
-
-**Del dit redesign:**
-
-Tag screenshots før/efter og del med klassen!
-
-**Hvad lærte du om:**
-
-- Tailwind's muligheder og begrænsninger?
-- Design beslutninger og deres konsekvenser?
-- At arbejde uden færdig guide?
-
----
