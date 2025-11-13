@@ -64,6 +64,35 @@ Start development server: `npm run dev` og tjek at styling virker.
 
 Når du skriver `className="bg-` skulle du nu se autocomplete suggestions med farve preview! 🎨
 
+Erstat nu `app/layout.js` med:
+
+```javascript
+import "./globals.css";
+import Nav from "@/components/Nav";
+
+// Metadata for SEO
+export const metadata = {
+  title: "Next.js Post App",
+  description: "A modern post application built with Next.js 16"
+};
+
+// Root Layout - wraps all pages
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body className="bg-[#1a1a1a]">
+        <Nav />
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+- Test i browseren.
+- Hvad er forskellen?
+- Har vi tilføjet noget Tailwind relateret? Hvor?
+
 ---
 
 ## Opgave 4.2: Forstå Tailwind Utility Classes
@@ -92,7 +121,7 @@ Tailwind er et "utility-first" CSS framework. I stedet for at skrive custom CSS,
 Vi holder det simpelt og bruger én konsistent "dark" stil gennem hele appen:
 
 - Mørk baggrund: `bg-[#1a1a1a]`
-- Hvid baggrund til cards/komponenter: `bg-white`
+- Hvis der er brug for hvis baggrund kan det være: `bg-white`
 - Mørk tekst: `text-[#ededed]` på mørke baggrunde, `text-black` på lyse
 - Gråtoner til sekundær tekst: `text-gray-400`, `text-gray-600`
 
@@ -221,153 +250,205 @@ import styles from "./Nav.module.css";
 - `lg:text-2xl` = større tekst på large screens
 - Breakpoints: `sm:`, `md:`, `lg:`, `xl:`, `2xl:`
 
-**Praktisk øvelse - oversæt denne CSS:**
+**Praktisk øvelse - oversæt app/page.module.css til Tailwind på app/page.js**:
+
+I denne øvelse skal du konvertere hele homepage'en (`app/page.js`) fra CSS Modules til Tailwind CSS.
+
+**Trin 1: Undersøg den eksisterende styling**
+
+Åbn `app/page.module.css` og se hvilke klasser der skal konverteres:
 
 ```css
-.card {
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-```
-
-<details>
-<summary><strong>👉 Klik her for at se svaret</strong></summary>
-
-```javascript
-<div className="p-6 mb-4 bg-white rounded-lg shadow">
-```
-
-**Forklaring:**
-
-- `p-6` = padding: 1.5rem
-- `mb-4` = margin-bottom: 1rem
-- `bg-white` = background-color: white
-- `rounded-lg` = border-radius: 0.5rem
-- `shadow` = box-shadow (Tailwind's standard skygge)
-
-</details>
-
-**Almindelige begynder-fejl at undgå:**
-
-- ❌ `className="p4"` → ✅ `className="p-4"` (husk bindestreg!)
-- ❌ `className="padding-4"` → ✅ `className="p-4"` (brug forkortelsen)
-- ❌ Multiple classNames: `className="p-4" className="bg-white"`
-  → ✅ `className="p-4 bg-white"` (alle classes i én string)
-- ❌ `class="p-4"` → ✅ `className="p-4"` (React bruger className!)
-
-**Hjælperessourcer:**
-
-- Tailwind Docs: https://tailwindcss.com/docs
-- Tailwind Cheat Sheet: https://nerdcave.com/tailwind-cheat-sheet
-- VS Code Extension: "Tailwind CSS IntelliSense" (giver autocomplete!)
-
----
-
-## Opgave 4.3: Migrer Nav Komponenten
-
-**VIGTIG INSTRUKTION: Prøv først selv! 🎯**
-
-Før du scroller ned til guiden, prøv at migrere Nav komponenten selv:
-
-1. Åbn `components/Nav.js` og `components/Nav.module.css`
-2. Se på CSS reglerne - hvad gør de?
-3. Brug Opgave 4.2 som reference og prøv at oversætte CSS til Tailwind
-4. Brug VS Code Tailwind IntelliSense til at finde de rigtige classes
-5. Test i browseren
-
-**Kun hvis du sidder fast i 10+ minutter, scroll ned til guiden! 👇**
-
----
-
-<details>
-<summary><strong>📖 Klik her for step-by-step guide (brug kun hvis nødvendigt)</strong></summary>
-
-**Step-by-step guide til at migrere `Nav` komponenten:**
-
-**1. Åbn `components/Nav.js` og `components/Nav.module.css`**
-
-Analyser den nuværende styling. Hvad gør hver CSS regel?
-
-**2. Oversæt CSS til Tailwind classes:**
-
-Eksempel på den faktiske Nav styling i projektet:
-
-```css
-/* Nav.module.css */
-.nav {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+.page {
+  min-height: 100vh;
+  padding: 80px 20px 40px;
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 32px;
-  padding: 20px;
-  background-color: var(--foreground);
-  border-bottom: 1px solid var(--border-color);
-  z-index: 100;
 }
 
-.navLink {
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.2s;
+.container {
+  text-align: center;
+  max-width: 600px;
+}
+
+.logo {
+  margin-bottom: 40px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
   color: var(--text-primary);
 }
 
-.navLink:hover {
-  background-color: var(--background);
+.description {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  line-height: 1.6;
 }
 
-.active {
-  background-color: var(--background);
+.ctas {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.primaryButton {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  background-color: var(--text-primary);
+  color: var(--background);
+  transition: all 0.2s;
+}
+
+.primaryButton:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.secondaryButton {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  border: 1px solid var(--border-color);
+  transition: all 0.2s;
+}
+
+.secondaryButton:hover {
+  background-color: var(--foreground);
 }
 ```
 
-**Bliver til Tailwind:**
+**Trin 2: Konverter CSS klasser til Tailwind utilities**
 
-```javascript
-<nav className="fixed top-0 left-0 right-0 flex justify-center gap-8 p-5 bg-[#1a1a1a] border-b border-gray-800 z-100">
-  <Link href="/posts" className="px-4 py-2 rounded-lg font-medium transition-all text-[#ededed] hover:bg-black">
-    Posts
-  </Link>
-  {/* Active state: tilføj bg-black */}
-</nav>
+Her er mappingen for hver klasse:
+
+| CSS Module Klasse  | Tailwind Utilities                                                                                                | Forklaring                                                                                                                         |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `.page`            | `min-h-screen pt-20 pb-10 px-5 flex items-center justify-center`                                                  | `min-h-screen` = min-height: 100vh, `pt-20` = padding-top: 80px, `pb-10` = padding-bottom: 40px, `px-5` = padding left/right: 20px |
+| `.container`       | `text-center max-w-[600px]`                                                                                       | Centrerer tekst og sætter max bredde (brug arbitrary value [600px])                                                                |
+| `.logo`            | `mb-10`                                                                                                           | `mb-10` = margin-bottom: 40px                                                                                                      |
+| `.title`           | `text-[32px] font-semibold mb-4 tracking-tight text-[#ededed]`                                                    | Brug arbitrary values for specifikke størrelser og farver                                                                          |
+| `.description`     | `text-base text-gray-400 mb-8 leading-relaxed`                                                                    | `text-base` = 16px, `leading-relaxed` = line-height: 1.6                                                                           |
+| `.ctas`            | `flex gap-4 justify-center`                                                                                       | Flexbox med gap mellem elementer                                                                                                   |
+| `.primaryButton`   | `px-6 py-3 rounded-lg font-medium bg-[#ededed] text-black transition-all hover:opacity-85 hover:-translate-y-0.5` | Alle button styles inkl. hover states                                                                                              |
+| `.secondaryButton` | `px-6 py-3 rounded-lg font-medium border border-gray-700 transition-all hover:bg-[#1a1a1a]`                       | Border button med hover                                                                                                            |
+
+**Trin 3: Opdater app/page.js**
+
+Erstat CSS Module klasserne med Tailwind utilities:
+
+**FØR (med CSS Modules):**
+
+```jsx
+import Image from "next/image";
+import styles from "./page.module.css";
+
+export default function Home() {
+  return (
+    <div className={styles.page}>
+      <div className={styles.container}>
+        <Image className={styles.logo} src="/next.svg" alt="Next.js logo" width={180} height={37} priority />
+        <h1 className={styles.title}>Next Post App</h1>
+        <p className={styles.description}>En moderne blog platform...</p>
+        <div className={styles.ctas}>
+          <a href="/posts" className={styles.primaryButton}>
+            Se Posts
+          </a>
+          <a href="/posts/create" className={styles.secondaryButton}>
+            Opret Post
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
 ```
 
-**Tip:** Bemærk brugen af `fixed` til at fastgøre navigation i toppen, og `z-[100]` til at sikre den ligger over andet indhold!
+**EFTER (med Tailwind):**
 
-**3. Test i browseren**
+```jsx
+import Link from "next/link";
 
-- Gem filen
-- Tjek at det ser ud som før
-- Tjek hover effekter virker
-- Test på forskellig skærmstørrelser
+export default function Home() {
+  return (
+    <div className="min-h-screen pt-20 pb-10 px-5 flex items-center justify-center">
+      <main className="text-center max-w-[600px]">
+        <h1 className="text-[32px] font-semibold mb-4 tracking-tight text-[#ededed]">Next Post App</h1>
+        <p className="text-base text-gray-400 mb-8 leading-relaxed">En moderne blog platform...</p>
+        <div className="flex gap-4 justify-center">
+          <Link
+            href="/posts"
+            className="px-6 py-3 rounded-lg font-medium bg-[#ededed] text-black transition-all hover:opacity-85 hover:-translate-y-0.5">
+            Se Posts
+          </Link>
+          <a
+            href="/posts/create"
+            className="px-6 py-3 rounded-lg font-medium border border-gray-700 transition-all hover:bg-[#1a1a1a]">
+            Opret Post
+          </a>
+        </div>
+      </main>
+    </div>
+  );
+}
+```
 
-**4. Slet CSS Module filen**
+**Bemærk ændringerne:**
 
-Når alt virker: slet `Nav.module.css` og importer i `Nav.js`
+- ❌ Fjernet `import Image from "next/image"` og Next.js logoet (ikke nødvendigt for denne app)
+- ✅ Ændret `<div>` til `<main>` for bedre semantisk HTML
+- ✅ Bruger `Link` komponent i stedet for `<a>` tag for interne links
 
-**Almindelige fejl at undgå:**
 
-- ❌ Glemme at fjerne CSS Module import
-- ❌ Bruge `class` i stedet for `className`
-- ❌ Glemme at teste hover states
-- ❌ Ikke tjekke responsive design
+**Trin 4: Fjern CSS Module importen**
 
-</details>
+Slet linjen:
+
+```jsx
+import styles from "./page.module.css";
+```
+
+**Trin 5: Slet CSS Module filen**
+
+Nu hvor `app/page.js` bruger Tailwind, kan du slette den gamle CSS fil:
+
+```bash
+rm app/page.module.css
+```
+
+**Vigtige læringspunkter:**
+
+1. **Arbitrary Values**: Brug `[32px]`, `[600px]`, `[#ededed]` når Tailwind ikke har præcis den værdi
+2. **Hover States**: Prefix med `hover:` - fx `hover:opacity-85`
+3. **Utility First**: Hver CSS property bliver til en utility class
+4. **Transitions**: `transition-all` erstatter `transition: all 0.2s`
+5. **Spacing**: Tailwinds spacing scale (4 = 16px, 10 = 40px, etc.)
+
+**Checklist:**
+
+- [ ] Fjernet `import styles from "./page.module.css"`
+- [ ] Konverteret alle `className={styles.x}` til Tailwind utilities
+- [ ] Hover effects virker på knapperne
+- [ ] Slettet `app/page.module.css` filen
+- [ ] Layout ser identisk ud i browseren
+- [ ] Ingen console errors
 
 ---
 
 ## Opgave 4.4: Migrer UserAvatar Komponenten
 
-**Nu er det din tur - UDEN guide! 💪**
+**Nu skal vi prøve uden alt for meget hjælp! **
 
-Migrer `UserAvatar` komponenten til Tailwind helt selv.
+- Migrer `UserAvatar` komponenten til Tailwind helt selv.
+- Åben http://localhost:3000/posts så du kan se hvordan den ser ud lige nu. 
+- Åben så UserAvatar komponenten og begynd at migrere. 
+
 
 **Tilladt hjælp:**
 
