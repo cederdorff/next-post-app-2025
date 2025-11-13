@@ -806,135 +806,758 @@ export default function PostCard({ post }) {
 
 ## Opgave 4.6: Migrer FormPost Komponenten
 
-**Forms i Tailwind:**
+**Forms i Tailwind - med responsive design! 📱💻**
 
-**Form layout (grid med 2 kolonner):**
+FormPost er en form komponent med grid layout der skal fungere både på mobil og desktop.
 
-```javascript
-<form className="grid grid-cols-[1fr_2fr] gap-4 items-start max-w-[800px] my-5">
-  {/* grid-cols-[1fr_2fr] = labels i venstre kolonne, inputs i højre */}
-</form>
+**Din strategi:**
+
+1. **Forstå grid layoutet:**
+
+   - Desktop: 2 kolonner (labels i venstre, inputs i højre)
+   - Mobil: 1 kolonne (labels over inputs)
+
+2. **Migrer systematisk:**
+   - Form container med responsive grid
+   - Labels med responsive padding
+   - Input fields med dark theme styling
+   - Image preview med grid column positioning
+   - Button container
+
+**Tilladt hjælp:**
+
+- Tailwind responsive docs: https://tailwindcss.com/docs/responsive-design
+- VS Code IntelliSense
+- Tidligere komponenter som reference
+
+**Checklist når du er færdig:**
+
+- [ ] Form har 2 kolonner på desktop, 1 kolonne på mobil
+- [ ] Labels er hvide og har padding-top kun på desktop
+- [ ] Inputs har mørk baggrund og lys tekst
+- [ ] Focus state har lys border og subtil shadow
+- [ ] Image preview starter i kolonne 2 på desktop
+- [ ] Button container starter i kolonne 2 på desktop
+- [ ] CSS Module import er fjernet
+
+---
+
+<details>
+<summary><strong>💡 Hints (åbn ét ad gangen hvis du sidder fast)</strong></summary>
+
+**Hint 1: Responsive grid**
+
+- Brug `grid-cols-1 md:grid-cols-[1fr_2fr]` for mobile-first design
+- `md:` prefix betyder "fra medium breakpoint og op"
+
+**Hint 2: Responsive padding på labels**
+
+- Brug `md:pt-3` så padding-top kun er aktiv på desktop
+- På mobil skal labels ikke have top padding
+
+**Hint 3: Input dark theme**
+
+- Baggrund: `bg-[#1a1a1a]`
+- Border: `border-gray-700`
+- Tekst: `text-[#ededed]`
+- Focus border: `focus:border-[#ededed]`
+
+**Hint 4: Grid column positioning**
+
+- Brug `md:col-start-2` til at placere i kolonne 2 på desktop
+- På mobil (uden `md:`) starter de automatisk i kolonne 1
+
+**Hint 5: Focus shadow**
+
+- Brug arbitrary value: `focus:shadow-[0_0_0_3px_rgba(237,237,237,0.1)]`
+- Dette giver en lys ring omkring input ved focus
+
+</details>
+
+---
+
+<details>
+<summary><strong>📋 Fuld løsning (sammenlign EFTER du har prøvet)</strong></summary>
+
+**Først skal du se den originale CSS Module styling:**
+
+```css
+/* FormPost.module.css */
+.formPost {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  align-items: start;
+  max-width: 800px;
+  margin: 20px 0;
+}
+
+.formPost label {
+  font-weight: 500;
+  padding-top: 12px;
+  color: var(--text-primary);
+}
+
+.formPost input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  background-color: var(--foreground);
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+
+.formPost input:focus {
+  outline: none;
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.imagePreview {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  grid-column: 2;
+}
+
+.btns {
+  grid-column: 2;
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.btns button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: var(--text-primary);
+  color: var(--background);
+}
+
+.btns button:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .formPost {
+    grid-template-columns: 1fr;
+  }
+
+  .formPost label {
+    padding-top: 0;
+  }
+
+  .imagePreview {
+    grid-column: 1;
+  }
+
+  .btns {
+    grid-column: 1;
+  }
+}
 ```
 
-**Labels:**
+**FØR (med CSS Modules):**
 
 ```javascript
-<label className="font-medium pt-3 text-black">Caption</label>
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+import styles from "./FormPost.module.css";
+
+export default function FormPost({ action, post }) {
+  const [image, setImage] = useState(post?.image);
+
+  return (
+    <form action={action} className={styles.formPost}>
+      <label htmlFor="caption">Caption</label>
+      <input id="caption" name="caption" type="text" placeholder="Write a caption..." defaultValue={post?.caption} />
+      <label htmlFor="image">Image</label>
+      <input
+        type="url"
+        name="image"
+        id="image"
+        defaultValue={post?.image}
+        placeholder="Paste an image URL"
+        onChange={event => setImage(event.target.value)}
+      />
+      <label htmlFor="image-preview"></label>
+      <Image
+        id="image-preview"
+        className={styles.imagePreview}
+        src={image ? image : "https://placehold.co/600x400.webp?text=Paste+image+URL"}
+        width={600}
+        height={400}
+        alt={post?.caption || "Image preview"}
+      />
+      <div className={styles.btns}>
+        <button>{post?.caption ? "Update" : "Create"}</button>
+      </div>
+    </form>
+  );
+}
 ```
 
-**Input fields:**
+**EFTER (med Tailwind):**
 
 ```javascript
-<input
-  type="text"
-  className="w-full p-3 border border-gray-300 rounded-lg text-base font-[inherit] bg-white text-black transition-colors focus:outline-none focus:border-black focus:shadow-[0_0_0_3px_rgba(0,0,0,0.05)]"
-  placeholder="Enter caption..."
-/>
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+
+export default function FormPost({ action, post }) {
+  const [image, setImage] = useState(post?.image);
+
+  return (
+    <form action={action} className="grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4 items-start max-w-[800px] my-5">
+      <label htmlFor="caption" className="font-medium md:pt-3 text-[#ededed]">
+        Caption
+      </label>
+      <input
+        id="caption"
+        name="caption"
+        type="text"
+        placeholder="Write a caption..."
+        defaultValue={post?.caption}
+        className="w-full p-3 border border-gray-700 rounded-lg text-base font-[inherit] bg-[#1a1a1a] text-[#ededed] transition-colors focus:outline-none focus:border-[#ededed] focus:shadow-[0_0_0_3px_rgba(237,237,237,0.1)]"
+      />
+      <label htmlFor="image" className="font-medium md:pt-3 text-[#ededed]">
+        Image
+      </label>
+      <input
+        type="url"
+        name="image"
+        id="image"
+        defaultValue={post?.image}
+        placeholder="Paste an image URL"
+        onChange={event => setImage(event.target.value)}
+        className="w-full p-3 border border-gray-700 rounded-lg text-base font-[inherit] bg-[#1a1a1a] text-[#ededed] transition-colors focus:outline-none focus:border-[#ededed] focus:shadow-[0_0_0_3px_rgba(237,237,237,0.1)]"
+      />
+      <label htmlFor="image-preview" className="hidden md:block"></label>
+      <Image
+        id="image-preview"
+        className="w-full h-auto rounded-lg md:col-start-2"
+        src={image ? image : "https://placehold.co/600x400.webp?text=Paste+image+URL"}
+        width={600}
+        height={400}
+        alt={post?.caption || "Image preview"}
+      />
+      <div className="md:col-start-2 flex gap-4 mt-5">
+        <button className="px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all bg-[#ededed] text-black hover:opacity-85 hover:-translate-y-px">
+          {post?.caption ? "Update" : "Create"}
+        </button>
+      </div>
+    </form>
+  );
+}
 ```
 
-**Image preview:**
+**Forklaring af CSS → Tailwind mapping:**
 
-```javascript
-<img src={imageUrl} alt="Preview" className="w-full h-auto rounded-lg col-start-2" />
-```
+| CSS Module              | Tailwind Classes                                                                           | Forklaring                                                  |
+| ----------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `.formPost` grid        | `grid grid-cols-1 md:grid-cols-[1fr_2fr] gap-4 items-start max-w-[800px] my-5`             | Mobile: 1 kolonne, Desktop: 2 kolonner med arbitrary values |
+| `.formPost label`       | `font-medium md:pt-3 text-[#ededed]`                                                       | Responsive padding-top (kun desktop), lys tekst             |
+| `.formPost input` base  | `w-full p-3 border border-gray-700 rounded-lg text-base font-[inherit]`                    | Fuld bredde, padding, border, border-radius                 |
+| `.formPost input` theme | `bg-[#1a1a1a] text-[#ededed] transition-colors`                                            | Mørk baggrund, lys tekst, smooth transitions                |
+| `.formPost input:focus` | `focus:outline-none focus:border-[#ededed] focus:shadow-[0_0_0_3px_rgba(237,237,237,0.1)]` | Fjern outline, lys border, subtil glow effect               |
+| `.imagePreview`         | `w-full h-auto rounded-lg md:col-start-2`                                                  | Responsive grid column (kun kolonne 2 på desktop)           |
+| `.btns`                 | `md:col-start-2 flex gap-4 mt-5`                                                           | Responsive grid column, flexbox med gap                     |
+| `.btns button`          | `px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all`     | Button base styling                                         |
+| `.btns button` theme    | `bg-[#ededed] text-black hover:opacity-85 hover:-translate-y-px`                           | Lys baggrund, mørk tekst, hover effekter                    |
 
-**Buttons container:**
+**Vigtige læringspunkter:**
 
-```javascript
-<div className="col-start-2 flex gap-4 mt-5">
-  <button
-    type="submit"
-    className="px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all bg-black text-white hover:opacity-85 hover:-translate-y-px">
-    Save Post
-  </button>
-  <button
-    type="button"
-    className="px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all bg-gray-200 text-black hover:bg-gray-300">
-    Cancel
-  </button>
-</div>
-```
+1. **Mobile-first responsive design:** Start med `grid-cols-1`, tilføj `md:grid-cols-[1fr_2fr]` for desktop
+2. **Responsive utilities:** `md:pt-3`, `md:col-start-2`, `md:block` aktiveres kun på medium+ screens
+3. **Arbitrary grid values:** `grid-cols-[1fr_2fr]` for custom grid column proportions
+4. **Focus states på dark theme:** Brug lys farver for border og shadow
+5. **font-[inherit]:** Bevarer font-family fra parent element
+6. **Hidden labels:** `hidden md:block` skjuler tomme labels på mobil
 
-**Responsive (mobil):**
+**Responsive breakpoints i Tailwind:**
 
-```javascript
-<form className="grid grid-cols-[1fr_2fr] gap-4 items-start max-w-[800px] my-5 max-[600px]:grid-cols-1">
-  {/* På mobil bliver det én kolonne */}
+- `sm:` = 640px og op
+- `md:` = 768px og op ← Vi bruger denne
+- `lg:` = 1024px og op
+- `xl:` = 1280px og op
 
-  <label className="font-medium pt-3 max-[600px]:pt-0 text-black">Caption</label>
+**Trin for at færdiggøre migreringen:**
 
-  {/* Image preview og buttons skal også justeres */}
-  <img className="w-full h-auto rounded-lg col-start-2 max-[600px]:col-start-1" />
+1. **Fjern CSS Module importen:**
 
-  <div className="col-start-2 max-[600px]:col-start-1 flex gap-4 mt-5">{/* Buttons */}</div>
-</form>
-```
+   ```javascript
+   import styles from "./FormPost.module.css";
+   ```
 
-**Tip:** `col-start-2` placerer elementet i anden kolonne. På mobil bliver det `col-start-1`!
+2. **Slet CSS Module filen:**
+
+   ```bash
+   rm components/FormPost.module.css
+   ```
+
+3. **Test responsive design:**
+   - Åbn browseren og resize vinduet
+   - På mobil (<768px): 1 kolonne layout
+   - På desktop (≥768px): 2 kolonne layout
+
+</details>
 
 ---
 
 ## Opgave 4.7: Migrer Sider
 
-**Page layouts i Tailwind:**
+**Page layouts i Tailwind - alle posts sider! 📄**
 
-**Posts liste side (`app/posts/page.js`):**
+Nu skal du migrere de sidste 4 sider der bruger CSS Modules. Alle disse sider har lignende struktur, så du kan lære et pattern og gentage det.
+
+**Sider at migrere:**
+
+1. `app/posts/page.js` - Posts liste med grid
+2. `app/posts/create/page.js` - Opret post form
+3. `app/posts/[id]/page.js` - Post detaljer med actions
+4. `app/posts/[id]/update/page.js` - Rediger post form
+
+**Fælles patterns:**
+
+- Alle sider: `min-h-screen pt-20 pb-10 px-5` (men **IKKE** `bg-black` - det arves fra layout!)
+- Form sider: `max-w-[900px]` container
+- Detail sider: `max-w-[800px]` container
+- Liste side: `max-w-[1400px]` container
+- Headings: `text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight`
+
+**Tilladt hjælp:**
+
+- Se på tidligere migrerede komponenter
+- Tailwind grid docs for responsive layouts
+- VS Code IntelliSense
+
+**Checklist når alle 4 sider er færdige:**
+
+- [ ] Alle CSS Module imports er fjernet
+- [ ] Sider har korrekt padding-top for fixed nav (`pt-20`)
+- [ ] Headings er hvide og læsbare
+- [ ] Grid på liste siden er responsive
+- [ ] Form sider bruger FormPost komponenten korrekt
+- [ ] Buttons har konsistent styling
+- [ ] **INGEN** `bg-black` på sider (arves fra layout)
+- [ ] Alle 4 CSS Module filer er slettet
+
+---
+
+<details>
+<summary><strong>💡 Hints (åbn ét ad gangen hvis du sidder fast)</strong></summary>
+
+**Hint 1: Baggrundsfarve**
+
+- Brug **IKKE** `bg-black` på siderne!
+- Baggrundsfarven er allerede sat i `app/layout.js` med `bg-[#1a1a1a]`
+- Alle sider arver automatisk denne baggrund
+
+**Hint 2: Responsive grid (posts liste)**
+
+- Brug `grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 py-5`
+- Dette giver et grid der automatisk tilpasser antal kolonner baseret på skærmstørrelse
+- `auto-fill` fylder rækker så meget som muligt
+
+**Hint 3: Container størrelser**
+
+- Posts liste: `max-w-[1400px]` (bred for mange cards)
+- Form sider: `max-w-[900px]` (medium for forms)
+- Detail side: `max-w-[800px]` (smallere for læsbarhed)
+
+**Hint 4: Post detail card wrapper**
+
+- Wrap PostCard i: `bg-[#2a2a2a] p-6 rounded-xl mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.3)]`
+- Dette giver en mørk container omkring post detaljer
+
+**Hint 5: Button styling**
+
+- Update/Create buttons: `px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all bg-[#ededed] text-black hover:opacity-85 hover:-translate-y-px`
+- Matcher styling fra andre primære buttons i app'en
+
+</details>
+
+---
+
+<details>
+<summary><strong>📋 Fuld løsning (sammenlign EFTER du har prøvet)</strong></summary>
+
+### 1. Posts Liste Side (`app/posts/page.js`)
+
+**FØR (med CSS Modules):**
 
 ```javascript
-<div className="min-h-screen pt-20 pb-10 bg-black">
-  <div className="max-w-[1400px] mx-auto px-5">
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 py-5">
-      {/* Posts grid med auto-fill */}
-    </div>
-  </div>
-</div>
+import PostCard from "@/components/PostCard";
+import Link from "next/link";
+import styles from "./page.module.css";
+
+export default async function Home() {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const response = await fetch(url);
+  const dataObject = await response.json();
+
+  const posts = Object.keys(dataObject).map(key => ({
+    id: key,
+    ...dataObject[key]
+  }));
+
+  return (
+    <main className={styles.page}>
+      <div className={styles.container}>
+        <section className={styles.grid}>
+          {posts.map(post => (
+            <Link href={`/posts/${post.id}`} key={post.id}>
+              <PostCard post={post} />
+            </Link>
+          ))}
+        </section>
+      </div>
+    </main>
+  );
+}
 ```
 
-**Forklaring:**
-
-- `pt-20 pb-10` = 80px padding top (plads til fixed nav), 40px bottom
-- `bg-black` = mørk baggrund til page
-- `grid-cols-[repeat(auto-fill,minmax(300px,1fr))]` = responsive grid der automatisk tilpasser antal kolonner
-
-**Post detail side (`app/posts/[id]/page.js`):**
+**EFTER (med Tailwind):**
 
 ```javascript
-<div className="min-h-screen pt-20 pb-10 bg-black">
-  <div className="max-w-[800px] mx-auto py-10 px-5">
-    <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">Post Details</h1>
-    <div className="bg-white p-6 rounded-xl mb-6 shadow-sm">{/* Post content */}</div>
+import PostCard from "@/components/PostCard";
+import Link from "next/link";
 
-    <div className="flex gap-4 mt-5">
-      <button className="px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all bg-black text-white hover:opacity-85 hover:-translate-y-px">
-        Update
-      </button>
-      {/* Delete button */}
-    </div>
-  </div>
-</div>
+export default async function Home() {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const response = await fetch(url);
+  const dataObject = await response.json();
+
+  const posts = Object.keys(dataObject).map(key => ({
+    id: key,
+    ...dataObject[key]
+  }));
+
+  return (
+    <main className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[1400px] mx-auto px-5">
+        <section className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 py-5">
+          {posts.map(post => (
+            <Link href={`/posts/${post.id}`} key={post.id}>
+              <PostCard post={post} />
+            </Link>
+          ))}
+        </section>
+      </div>
+    </main>
+  );
+}
 ```
 
-**Home page (`app/page.js`):**
+### 2. Create Post Side (`app/posts/create/page.js`)
+
+**FØR (med CSS Modules):**
 
 ```javascript
-<div className="min-h-screen pt-20 pb-10 bg-black flex items-center justify-center">
-  <div className="text-center max-w-[600px]">
-    <div className="mb-10">{/* Logo */}</div>
-    <h1 className="text-[32px] font-semibold mb-4 tracking-tight text-[#ededed]">Welcome</h1>
-    <p className="text-base text-gray-400 mb-8 leading-relaxed">Description text</p>
-    <div className="flex gap-4 justify-center">
-      <button className="px-6 py-3 rounded-lg font-medium bg-white text-black transition-all hover:opacity-85 hover:-translate-y-px">
-        Primary
-      </button>
-      <button className="px-6 py-3 rounded-lg font-medium border border-gray-700 text-[#ededed] transition-all hover:bg-gray-900">
-        Secondary
-      </button>
-    </div>
-  </div>
-</div>
+import { redirect } from "next/navigation";
+import FormPost from "@/components/FormPost";
+import styles from "./page.module.css";
+
+export default function CreatePage() {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+
+  async function createPost(formData) {
+    "use server";
+    const caption = formData.get("caption");
+    const image = formData.get("image");
+
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        caption,
+        image,
+        uid: "OPPe5jue2Ghxx3mtnxevB5FwCYe2",
+        createdAt: new Date().toISOString()
+      })
+    });
+
+    if (response.ok) {
+      redirect("/posts");
+    }
+  }
+
+  return (
+    <section className={styles.formPage}>
+      <div className={styles.container}>
+        <h1>Create New Post</h1>
+        <FormPost action={createPost} />
+      </div>
+    </section>
+  );
+}
 ```
 
-**Tip:** Alle sider bruger `pt-20` (80px) for at give plads til den fixed navigation!
+**EFTER (med Tailwind):**
+
+```javascript
+import { redirect } from "next/navigation";
+import FormPost from "@/components/FormPost";
+
+export default function CreatePage() {
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+
+  async function createPost(formData) {
+    "use server";
+    const caption = formData.get("caption");
+    const image = formData.get("image");
+
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        caption,
+        image,
+        uid: "OPPe5jue2Ghxx3mtnxevB5FwCYe2",
+        createdAt: new Date().toISOString()
+      })
+    });
+
+    if (response.ok) {
+      redirect("/posts");
+    }
+  }
+
+  return (
+    <section className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[900px] mx-auto py-10 px-5">
+        <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">Create New Post</h1>
+        <FormPost action={createPost} />
+      </div>
+    </section>
+  );
+}
+```
+
+### 3. Post Detail Side (`app/posts/[id]/page.js`)
+
+**FØR (med CSS Modules):**
+
+```javascript
+import PostCard from "@/components/PostCard";
+import DeletePostButton from "@/components/DeletePostButton";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import styles from "./page.module.css";
+
+export default async function PostPage({ params }) {
+  const { id } = await params;
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const response = await fetch(url);
+  const post = await response.json();
+
+  async function deletePost() {
+    "use server";
+    const response = await fetch(url, {
+      method: "DELETE"
+    });
+    if (response.ok) {
+      redirect("/posts");
+    }
+  }
+
+  return (
+    <main className={styles.postPage}>
+      <div className={styles.container}>
+        <h1>{post.caption}</h1>
+        <div className={styles.postCard}>
+          <PostCard post={post} />
+        </div>
+        <div className={styles.btns}>
+          <DeletePostButton deleteAction={deletePost} />
+          <Link href={`/posts/${id}/update`}>
+            <button className={styles.btnUpdate}>Update post</button>
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+```
+
+**EFTER (med Tailwind):**
+
+```javascript
+import PostCard from "@/components/PostCard";
+import DeletePostButton from "@/components/DeletePostButton";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+
+export default async function PostPage({ params }) {
+  const { id } = await params;
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const response = await fetch(url);
+  const post = await response.json();
+
+  async function deletePost() {
+    "use server";
+    const response = await fetch(url, {
+      method: "DELETE"
+    });
+    if (response.ok) {
+      redirect("/posts");
+    }
+  }
+
+  return (
+    <main className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[800px] mx-auto py-10 px-5">
+        <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">{post.caption}</h1>
+        <div className="bg-[#2a2a2a] p-6 rounded-xl mb-6 shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+          <PostCard post={post} />
+        </div>
+        <div className="flex gap-4 mt-5">
+          <DeletePostButton deleteAction={deletePost} />
+          <Link href={`/posts/${id}/update`}>
+            <button className="px-6 py-3 border-none rounded-lg text-base font-medium cursor-pointer transition-all bg-[#ededed] text-black hover:opacity-85 hover:-translate-y-px">
+              Update post
+            </button>
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
+```
+
+### 4. Update Post Side (`app/posts/[id]/update/page.js`)
+
+**FØR (med CSS Modules):**
+
+```javascript
+import FormPost from "@/components/FormPost";
+import { redirect } from "next/navigation";
+import styles from "./page.module.css";
+
+export default async function UpdatePage({ params }) {
+  const { id } = await params;
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const response = await fetch(url);
+  const post = await response.json();
+
+  async function updatePost(formData) {
+    "use server";
+    const caption = formData.get("caption");
+    const image = formData.get("image");
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      body: JSON.stringify({ caption, image })
+    });
+
+    if (response.ok) {
+      redirect(`/posts/${id}`);
+    }
+  }
+
+  return (
+    <section className={styles.formPage}>
+      <div className={styles.container}>
+        <h1>Update Post</h1>
+        <FormPost action={updatePost} post={post} />
+      </div>
+    </section>
+  );
+}
+```
+
+**EFTER (med Tailwind):**
+
+```javascript
+import FormPost from "@/components/FormPost";
+import { redirect } from "next/navigation";
+
+export default async function UpdatePage({ params }) {
+  const { id } = await params;
+  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const response = await fetch(url);
+  const post = await response.json();
+
+  async function updatePost(formData) {
+    "use server";
+    const caption = formData.get("caption");
+    const image = formData.get("image");
+
+    const response = await fetch(url, {
+      method: "PATCH",
+      body: JSON.stringify({ caption, image })
+    });
+
+    if (response.ok) {
+      redirect(`/posts/${id}`);
+    }
+  }
+
+  return (
+    <section className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[900px] mx-auto py-10 px-5">
+        <h1 className="text-[32px] font-semibold mb-6 text-[#ededed] tracking-tight">Update Post</h1>
+        <FormPost action={updatePost} post={post} />
+      </div>
+    </section>
+  );
+}
+```
+
+**Vigtige læringspunkter:**
+
+1. **Layout arv:** Baggrundsfarve sættes i `layout.js` og arves af alle sider - GENTAG IKKE `bg-black`!
+2. **Fixed nav spacing:** Alle sider bruger `pt-20` (80px) for at give plads til fixed navigation
+3. **Container størrelser:**
+   - Liste: `max-w-[1400px]` - bred for grid
+   - Form: `max-w-[900px]` - medium for forms
+   - Detail: `max-w-[800px]` - smallere for fokus
+4. **Responsive grid:** `grid-cols-[repeat(auto-fill,minmax(300px,1fr))]` tilpasser automatisk kolonner
+5. **Konsistent styling:** Buttons, headings og spacing matcher på tværs af alle sider
+
+**Trin for at færdiggøre migreringen:**
+
+1. **Fjern CSS Module imports fra alle 4 sider:**
+
+   - Slet `import styles from "./page.module.css";` fra hver fil
+
+2. **⚠️ VIGTIGT: Slet alle 4 CSS Module filer:**
+
+   ```bash
+   rm app/posts/page.module.css
+   rm app/posts/create/page.module.css
+   rm app/posts/[id]/page.module.css
+   rm app/posts/[id]/update/page.module.css
+   ```
+
+   **Eller slet dem manuelt i VS Code:**
+
+   - `app/posts/page.module.css`
+   - `app/posts/create/page.module.css`
+   - `app/posts/[id]/page.module.css`
+   - `app/posts/[id]/update/page.module.css`
+
+3. **Verificer i VS Code:**
+
+   - Søg efter `page.module.css` i workspace - der skal **INGEN** resultater være i `app/posts/` mapperne
+   - Tjek at der ikke er røde fejl-streger i de migrerede filer
+
+4. **Test alle sider i browseren:**
+   - Posts liste viser grid korrekt
+   - Create/Update forms fungerer
+   - Post detaljer vises korrekt med actions
+
+</details>
 
 ---
 

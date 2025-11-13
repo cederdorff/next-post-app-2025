@@ -1,6 +1,5 @@
 import PostCard from "@/components/PostCard";
 import Link from "next/link";
-import styles from "./page.module.css";
 
 // Server Component
 export default async function Home() {
@@ -15,9 +14,9 @@ export default async function Home() {
   console.log(posts);
 
   return (
-    <main className={styles.page}>
-      <div className={styles.container}>
-        <section className={styles.grid}>
+    <main className="min-h-screen pt-20 pb-10 px-5">
+      <div className="max-w-[1400px] mx-auto px-5">
+        <section className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 py-5">
           {posts.map(post => (
             <Link href={`/posts/${post.id}`} key={post.id}>
               <PostCard post={post} />
