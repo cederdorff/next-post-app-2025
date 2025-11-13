@@ -56,9 +56,9 @@ Efter denne opgave kan du:
 3. **Konfigurer Firebase database:**
    - Opret `.env.local` fil i roden af projektet
    - Kopier indholdet fra `.env.example`
-   - Tilføj Firebase database URL (får du fra underviseren)
+   - Tilføj Firebase database URL:
    ```
-   NEXT_PUBLIC_FB_DB_URL=https://[DATABASE_URL].firebaseio.com
+   NEXT_PUBLIC_FB_DB_URL=https://next-post-app-race-default-rtdb.firebaseio.com
    ```
    - Genstart dev server (`Ctrl+C` og `npm run dev`)
    - Test at data hentes korrekt
