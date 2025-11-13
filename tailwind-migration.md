@@ -1561,7 +1561,216 @@ export default async function UpdatePage({ params }) {
 
 ---
 
-## Opgave 4.8: Migrer DeleteButton/DeletePostButton
+## Opgave 4.8: Migrer Nav Komponenten
+
+**Navigation med conditional styling! 🧭**
+
+Nav er en Client Component der bruger `usePathname` hook til at highlight den aktive side.
+
+**Udfordringer i denne komponent:**
+
+1. **Fixed positioning** - Nav skal være fixed i toppen
+2. **Conditional classes** - Aktiv link skal have anderledes styling
+3. **Z-index** - Nav skal være over alt andet indhold
+4. **Synlighed** - Nav skal skille sig ud fra baggrunden
+
+**Tilladt hjælp:**
+
+- React conditional rendering dokumentation
+- Tailwind positioning docs
+- VS Code IntelliSense
+
+**Checklist når du er færdig:**
+
+- [ ] Nav er fixed i toppen af siden
+- [ ] Nav har lysere baggrund end page baggrund
+- [ ] Border og shadow gør nav synlig
+- [ ] Aktiv link har mørk baggrund
+- [ ] Hover state virker på inaktive links
+- [ ] CSS Module import er fjernet
+
+---
+
+<details>
+<summary><strong>💡 Hints (åbn ét ad gangen hvis du sidder fast)</strong></summary>
+
+**Hint 1: Fixed positioning**
+- Brug `fixed top-0 left-0 right-0` til at fastgøre nav i toppen over hele bredden
+- Husk `z-100` for at nav er over andet indhold
+
+**Hint 2: Synlighed**
+- Brug `bg-[#2a2a2a]` - lysere end page baggrund `bg-[#1a1a1a]`
+- Tilføj `shadow-md` for dybde
+- Brug `border-b border-gray-700` for synlig bund-border
+
+**Hint 3: Conditional classes**
+- Brug template literals: `className={\`base-classes ${condition ? "active" : "hover"}\`}`
+- Sammenlign `pathname === "/"` for aktiv state
+- Aktiv: `bg-black`, Inaktiv hover: `hover:bg-black`
+
+**Hint 4: Gap mellem links**
+- Brug `gap-8` for 32px mellemrum mellem nav links
+- Centrer med `justify-center`
+
+</details>
+
+---
+
+<details>
+<summary><strong>📋 Fuld løsning (sammenlign EFTER du har prøvet)</strong></summary>
+
+**Først skal du se den originale CSS Module styling:**
+
+```css
+/* Nav.module.css */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  padding: 20px;
+  background-color: var(--foreground);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 100;
+}
+
+.navLink {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s;
+  color: var(--text-primary);
+}
+
+.navLink:hover {
+  background-color: var(--background);
+}
+
+.active {
+  background-color: var(--background);
+}
+```
+
+**FØR (med CSS Modules):**
+
+```javascript
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import styles from "./Nav.module.css";
+
+export default function Nav() {
+  const pathname = usePathname();
+
+  return (
+    <nav className={styles.nav}>
+      <Link href="/" className={`${styles.navLink} ${pathname === "/" ? styles.active : ""}`}>
+        Home
+      </Link>
+      <Link href="/posts" className={`${styles.navLink} ${pathname === "/posts" ? styles.active : ""}`}>
+        Posts
+      </Link>
+      <Link href="/posts/create" className={`${styles.navLink} ${pathname === "/posts/create" ? styles.active : ""}`}>
+        New Post
+      </Link>
+    </nav>
+  );
+}
+```
+
+**EFTER (med Tailwind):**
+
+```javascript
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+export default function Nav() {
+  const pathname = usePathname();
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 flex justify-center gap-8 p-5 bg-[#2a2a2a] border-b border-gray-700 shadow-md z-100">
+      <Link
+        href="/"
+        className={`px-4 py-2 rounded-lg font-medium transition-all text-[#ededed] ${
+          pathname === "/" ? "bg-black" : "hover:bg-black"
+        }`}>
+        Home
+      </Link>
+      <Link
+        href="/posts"
+        className={`px-4 py-2 rounded-lg font-medium transition-all text-[#ededed] ${
+          pathname === "/posts" ? "bg-black" : "hover:bg-black"
+        }`}>
+        Posts
+      </Link>
+      <Link
+        href="/posts/create"
+        className={`px-4 py-2 rounded-lg font-medium transition-all text-[#ededed] ${
+          pathname === "/posts/create" ? "bg-black" : "hover:bg-black"
+        }`}>
+        New Post
+      </Link>
+    </nav>
+  );
+}
+```
+
+**Forklaring af CSS → Tailwind mapping:**
+
+| CSS Module | Tailwind Classes | Forklaring |
+|-----------|-----------------|------------|
+| `.nav` position | `fixed top-0 left-0 right-0` | Fixed i toppen over hele bredden |
+| `.nav` layout | `flex justify-center gap-8 p-5` | Centreret flex med 32px gap og 20px padding |
+| `.nav` styling | `bg-[#2a2a2a] border-b border-gray-700 shadow-md` | Lysere baggrund, synlig border og shadow |
+| `.nav` z-index | `z-100` | Z-index 100 for at være over indhold |
+| `.navLink` base | `px-4 py-2 rounded-lg font-medium transition-all text-[#ededed]` | Padding, border-radius, font, transitions, lys tekst |
+| `.active` | `bg-black` (conditional) | Mørk baggrund for aktiv link |
+| `.navLink:hover` | `hover:bg-black` (conditional) | Mørk baggrund ved hover på inaktiv link |
+
+**Vigtige læringspunkter:**
+
+1. **Conditional classes med template literals:**
+   ```javascript
+   className={`base-classes ${condition ? "class-if-true" : "class-if-false"}`}
+   ```
+
+2. **Fixed positioning:** `fixed top-0 left-0 right-0` dækker fuld bredde
+3. **Z-index:** `z-100` sikrer nav er over andet indhold
+4. **Synlighed på dark theme:**
+   - Lysere baggrund end page: `bg-[#2a2a2a]` vs `bg-[#1a1a1a]`
+   - Shadow: `shadow-md` giver dybde
+   - Border: `border-gray-700` mere synlig end `border-gray-800`
+
+5. **Client Component:** Husk at beholde `"use client"` da komponenten bruger `usePathname` hook
+
+**Trin for at færdiggøre migreringen:**
+
+1. **Fjern CSS Module importen:**
+   ```javascript
+   import styles from "./Nav.module.css";
+   ```
+
+2. **Slet CSS Module filen:**
+   ```bash
+   rm components/Nav.module.css
+   ```
+
+3. **Test navigation:**
+   - Klik rundt mellem sider og se at aktiv link highlightes
+   - Hover over inaktive links for at se hover effect
+   - Verificer at nav er fixed og synlig over indhold
+
+</details>
+
+---
+
+## Opgave 4.9: Migrer DeleteButton/DeletePostButton
 
 **Delete button (trigger):**
 
