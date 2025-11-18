@@ -12,7 +12,6 @@ export default async function Home() {
     id: key,
     ...dataObject[key]
   })); // Convert object to array
-  console.log(posts);
 
   return (
     <main className={styles.page}>
