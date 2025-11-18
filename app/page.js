@@ -9,7 +9,7 @@ export default function Home() {
         <Image className={styles.logo} src="/next.svg" alt="Next.js logo" width={180} height={37} priority />
         <h1 className={styles.title}>Next.js Post App</h1>
         <p className={styles.description}>
-          A modern post application built with Next.js 16, featuring Server Components, Server Actions, and Firebase
+          A modern post app built with Next.js 16, featuring Server Components, Server Actions, and Firebase
           integration.
         </p>
         <div className={styles.ctas}>
