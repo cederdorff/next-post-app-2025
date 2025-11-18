@@ -553,7 +553,7 @@ import Image from "next/image";
 import styles from "./UserAvatar.module.css";
 
 export default async function UserAvatar({ uid }) {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/users/${uid}.json`;
   const response = await fetch(url);
   const user = await response.json();
 
@@ -575,7 +575,7 @@ export default async function UserAvatar({ uid }) {
 import Image from "next/image";
 
 export default async function UserAvatar({ uid }) {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/users/${uid}.json`;
   const response = await fetch(url);
   const user = await response.json();
 
@@ -1238,7 +1238,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 export default async function Home() {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
   const response = await fetch(url);
   const dataObject = await response.json();
 
@@ -1270,7 +1270,7 @@ import PostCard from "@/components/PostCard";
 import Link from "next/link";
 
 export default async function Home() {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
   const response = await fetch(url);
   const dataObject = await response.json();
 
@@ -1305,7 +1305,7 @@ import FormPost from "@/components/FormPost";
 import styles from "./page.module.css";
 
 export default function CreatePage() {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
 
   async function createPost(formData) {
     "use server";
@@ -1345,7 +1345,7 @@ import { redirect } from "next/navigation";
 import FormPost from "@/components/FormPost";
 
 export default function CreatePage() {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
 
   async function createPost(formData) {
     "use server";
@@ -1391,7 +1391,7 @@ import styles from "./page.module.css";
 
 export default async function PostPage({ params }) {
   const { id } = await params;
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
 
@@ -1434,7 +1434,7 @@ import { redirect } from "next/navigation";
 
 export default async function PostPage({ params }) {
   const { id } = await params;
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
 
@@ -1480,7 +1480,7 @@ import styles from "./page.module.css";
 
 export default async function UpdatePage({ params }) {
   const { id } = await params;
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
 
@@ -1518,7 +1518,7 @@ import { redirect } from "next/navigation";
 
 export default async function UpdatePage({ params }) {
   const { id } = await params;
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
 

@@ -66,7 +66,7 @@ npm install
 3. Create `.env.local` file:
 
 ```env
-NEXT_PUBLIC_FB_DB_URL=https://your-firebase-db.firebaseio.com
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://your-firebase-db.firebaseio.com
 ```
 
 4. Run the development server:
@@ -198,7 +198,7 @@ All components use CSS variables for consistent theming with automatic dark mode
 Create a `.env.local` file:
 
 ```env
-NEXT_PUBLIC_FB_DB_URL=your_firebase_database_url
+NEXT_PUBLIC_FIREBASE_DATABASE_URL=your_firebase_database_url
 ```
 
 ## 📖 Learn More
