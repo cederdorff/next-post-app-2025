@@ -2,7 +2,7 @@
 
 Denne guide viser hvordan du implementerer Firebase Authentication i din Next.js post app.
 
-## 📋 Oversigt
+## Oversigt
 
 **Udgangspunkt:** Du har en Next.js post app hvor posts har hardcoded `uid: "OPPe5jue2Ghxx3mtnxevB5FwCYe2"`
 
@@ -1334,12 +1334,16 @@ import styles from "./page.module.css";
 import { requireAuth } from "@/lib/auth";
 
 export default async function UpdatePage({ params }) {
-  await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
+  const user = await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
 
   const { id } = await params;
   const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
+
+  if (user.uid !== post.uid) {
+    redirect("/posts");
+  }
 
   // Server Action to handle post update
   async function updatePost(formData) {
@@ -1371,34 +1375,38 @@ export default async function UpdatePage({ params }) {
 **Vigtige ændringer:**
 
 - ✅ Import `requireAuth` fra `@/lib/auth`
-- ✅ Auth check med `await requireAuth()` i starten af component
+- ✅ Auth check og gem `user` objekt: `const user = await requireAuth()`
+- ✅ **Ownership check:** `if (user.uid !== post.uid) { redirect("/posts"); }`
 - ✅ Server Action forbliver nested (har adgang til `url` og `id` via closure)
 
 ### 8.3 Opdater `app/posts/[id]/page.js`
 
 ```javascript
-import PostCard from "@/components/PostCard";
 import DeletePostButton from "@/components/DeletePostButton";
+import PostCard from "@/components/PostCard";
+import { requireAuth } from "@/lib/auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import styles from "./page.module.css";
-import { getServerUser, requireAuth } from "@/lib/auth";
 
 export default async function PostPage({ params }) {
-  await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
+  const user = await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
 
   const { id } = await params;
   const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
 
-  // Get current user on server
-  const user = await getServerUser();
   const isOwner = user && user.uid === post.uid;
 
   // Server Action to handle post deletion
   async function deletePost() {
-    "use server"; // Mark as server action - runs on server only
+    "use server";
+
+    if (!isOwner) {
+      redirect("/posts"); // Forhindre sletning af andres posts
+    }
+
     const response = await fetch(url, {
       method: "DELETE"
     });
@@ -1430,6 +1438,14 @@ export default async function PostPage({ params }) {
 
 **Vigtige ændringer:**
 
+- ✅ Brug `requireAuth()` i stedet for `getServerUser()` og gem `user`
+- ✅ Beregn `isOwner` baseret på `user.uid === post.uid`
+- ✅ **Ownership check i deletePost:** `if (!isOwner) { redirect("/posts"); }`
+- ✅ `deletePost` er nested Server Action med adgang til `url` og `isOwner` via closure
+- ✅ UI conditional `{isOwner && ...}` skjuler delete/update knapper for ikke-ejere
+
+**Vigtige ændringer:**
+
 - ✅ Auth check med `await requireAuth()` i starten af component
 - ✅ `deletePost` er nested Server Action (har adgang til `url` via closure)
 - ✅ Ingen `.bind()` nødvendig - `deletePost` kan bruge `url` direkte
@@ -1437,7 +1453,7 @@ export default async function PostPage({ params }) {
 
 ---
 
-## 🧪 Test din implementation
+## Test din implementation
 
 ### 1. Start dev server
 
@@ -1445,32 +1461,126 @@ export default async function PostPage({ params }) {
 npm run dev
 ```
 
-### 2. Test auth flow
+### 2. Test Authentication (Hvem er du?)
 
-1. ✅ Gå til `/signup` og opret en bruger
-2. ✅ Tjek at du bliver redirected til `/posts`
-3. ✅ Tjek at Nav viser din email og "Log Out" knap
-4. ✅ Tjek at "New Post" link vises
-5. ✅ Opret et post
-6. ✅ Tjek at kun dine posts viser "Update" og "Delete" knapper
-7. ✅ Log ud og tjek at knapperne forsvinder
-8. ✅ Refresh browseren mens logged in - du skal stadig være logged ind
+1. ✅ **Uauthenticated access:**
+
+   - Gå til `/posts/create` uden at være logged ind
+   - Du skal blive redirected til `/signin`
+   - Prøv at gå til `/profile` - du skal også redirectes
+
+2. ✅ **Signup flow:**
+
+   - Gå til `/signup` og opret en ny bruger
+   - Tjek at du bliver redirected til `/posts`
+   - Tjek at Nav viser din email og "Log Out" knap
+
+3. ✅ **Login flow:**
+
+   - Log ud
+   - Gå til `/signin` og log ind med dine credentials
+   - Tjek at du bliver redirected til `/posts`
+
+4. ✅ **Session persistence:**
+   - Mens logged ind, refresh browseren (F5)
+   - Du skal stadig være logged ind (ikke redirected til signin)
+
+### 3. Test Authorization (Hvad må du?)
+
+5. ✅ **Create post (kun authenticated):**
+
+   - Som logged ind bruger, klik "New Post"
+   - Opret et post med caption og billede
+   - Tjek at posten vises med DIT navn (ikke hardcoded UID)
+
+6. ✅ **View posts (alle kan se):**
+
+   - Log ud
+   - Log ind med en ANDEN bruger (opret ny hvis nødvendigt)
+   - Gå til `/posts` - du skal kunne se alle posts
+   - Klik på et post du IKKE ejer
+
+7. ✅ **Update authorization (kun ejer):**
+
+   - Mens du ser et post du IKKE ejer: Tjek at du IKKE ser "Update post" knap
+   - Prøv at gå direkte til `/posts/[id]/update` URL'en
+   - Du skal blive redirected til `/posts` (ikke ejer = ingen adgang)
+
+8. ✅ **Delete authorization (kun ejer):**
+
+   - Mens du ser et post du IKKE ejer: Tjek at du IKKE ser delete-knappen
+   - Gå til et post DU ejer (opret evt. et nyt)
+   - Tjek at du nu SER både "Delete" og "Update post" knapper
+   - Slet posten - det skal virke
+
+9. ✅ **Profile authorization:**
+   - Gå til `/profile`
+   - Opdater dit navn eller titel
+   - Opret et nyt post og tjek at det nye navn vises
 
 ---
 
-## 🎯 Hvad har vi opnået?
+## Hvad har vi opnået?
+
+### 📊 Security Oversigt - Alle Pages
+
+| Page                     | Auth Check           | Authorization                   | Status | Note                              |
+| ------------------------ | -------------------- | ------------------------------- | ------ | --------------------------------- |
+| **`/` (home)**           | ❌ Ingen             | N/A                             | ✅ OK  | Offentlig landing page            |
+| **`/posts`**             | ❌ Ingen             | N/A                             | ✅ OK  | Offentlig liste - alle kan browse |
+| **`/posts/[id]`**        | ✅ `requireAuth()`   | ✅ `isOwner` check i deletePost | ✅ God | Alle kan se, kun ejer kan delete  |
+| **`/posts/[id]/update`** | ✅ `requireAuth()`   | ✅ Ownership redirect           | ✅ God | Kun ejer kan opdatere             |
+| **`/posts/create`**      | ✅ `requireAuth()`   | ✅ Bruger egen UID              | ✅ God | Kun authenticated kan create      |
+| **`/profile`**           | ✅ Client-side check | N/A                             | ✅ OK  | Client Component med useAuth      |
+| **`/signin`**            | ❌ Ingen             | N/A                             | ✅ OK  | Login page                        |
+| **`/signup`**            | ❌ Ingen             | N/A                             | ✅ OK  | Signup page                       |
+
+### 🔒 Authorization Matrix - Hvad må brugere gøre?
+
+| Action               | Unauthenticated        | Authenticated (ikke ejer) | Authenticated (ejer) |
+| -------------------- | ---------------------- | ------------------------- | -------------------- |
+| **Browse /posts**    | ✅ Tilladt             | ✅ Tilladt                | ✅ Tilladt           |
+| **View post detail** | ❌ Redirect til signin | ✅ Kan se posten          | ✅ Kan se posten     |
+| **Create post**      | ❌ Redirect til signin | ✅ Kan oprette            | ✅ Kan oprette       |
+| **Update post**      | ❌ Redirect til signin | ❌ Redirect til /posts    | ✅ Kan opdatere      |
+| **Delete post**      | ❌ Redirect til signin | ❌ Action redirecter      | ✅ Kan slette        |
+| **Edit profile**     | ❌ Redirect til signin | ✅ Egen profil            | ✅ Egen profil       |
+
+### 🛡️ Sikkerhedslag - Defense in Depth
+
+| Lag                             | Beskyttelse                        | Implementering                        |
+| ------------------------------- | ---------------------------------- | ------------------------------------- |
+| **1. Page-level Auth**          | Bloker unauthenticated users       | `requireAuth()` på protected pages    |
+| **2. Ownership Check**          | Bloker ikke-ejere fra update-siden | `if (user.uid !== post.uid) redirect` |
+| **3. Server Action Auth**       | Verificer ownership i actions      | `if (!isOwner) redirect` i deletePost |
+| **4. UI Conditional**           | Skjul knapper for ikke-ejere       | `{isOwner && <DeleteButton />}`       |
+| **5. HttpOnly Cookies**         | Beskyt mod XSS                     | `httpOnly: true` i cookie settings    |
+| **6. Server-side Verification** | Verificer tokens er ægte           | Firebase Admin SDK `verifyIdToken()`  |
+
+### Authentication (Hvem er du?)
 
 ✅ **Sikker authentication** - Firebase Admin SDK verificerer tokens på server  
 ✅ **HttpOnly cookies** - Tokens kan ikke manipuleres fra client  
-✅ **Server Components** - Bevaret for optimal performance  
-✅ **Owner-based access** - Kun ejeren kan edit/delete posts  
 ✅ **Persistent sessions** - Login bevares ved browser refresh  
+✅ **Protected pages** - Unauthenticated users redirectes til `/signin`
+
+### Authorization (Hvad må du?)
+
+✅ **Owner-based access** - Kun ejeren kan edit/delete egne posts  
+✅ **Ownership checks** - Verificeret på både page-level og i Server Actions  
+✅ **UI conditionals** - Delete/update knapper kun synlige for ejere  
+✅ **Create authorization** - Posts associeres med autentificeret brugers UID
+
+### Technical Excellence
+
+✅ **Server Components** - Bevaret for optimal performance  
+✅ **Nested Server Actions** - Sikker closure-based access til user data  
 ✅ **Brugervenlige fejl** - Klare beskeder på dansk/engelsk  
 ✅ **Professional UX** - Loading states, error handling, redirects
 
 ---
 
-## 📚 Arkitektur-oversigt
+## Arkitektur-oversigt
 
 ```
 Client (Browser)
@@ -1478,26 +1588,48 @@ Client (Browser)
     ├─> Firebase Auth (login/signup)
     │   └─> Får IdToken fra Firebase
     │
-    ├─> AuthContext sætter token i cookie
+    ├─> AuthContext sætter token i HttpOnly cookie
     │
 Server (Next.js)
     │
-    ├─> Firebase Admin SDK
-    │   └─> Verificerer token er ægte
+    ├─> Page Level
+    │   ├─> requireAuth() verificerer token
+    │   └─> Ownership check (update page)
     │
-    └─> Beskyttede Server Actions
+    ├─> Firebase Admin SDK
+    │   └─> verifyIdToken() verificerer token er ægte
+    │
+    └─> Server Actions (Nested)
+        ├─> Closure access til user/post data
+        └─> Ownership check (deletePost)
 ```
+
+**Authentication Flow:**
+
+1. Bruger logger ind via Firebase Auth (client-side)
+2. `AuthContext` modtager IdToken fra Firebase
+3. Token gemmes i HttpOnly cookie via Server Action
+4. Ved hver request verificeres token med Firebase Admin SDK
+5. `requireAuth()` returnerer user objekt eller fejler
+
+**Authorization Flow:**
+
+1. **Create:** `user.uid` sættes automatisk på nye posts
+2. **Update:** Page-level check `if (user.uid !== post.uid) redirect`
+3. **Delete:** Server Action check `if (!isOwner) redirect`
+4. **View:** UI conditional `{isOwner && <DeleteButton />}`
 
 **Nøgle-komponenter:**
 
 - **Client:** `firebase` pakke til login/signup UI
 - **Server:** `firebase-admin` til token-verifikation
-- **Bridge:** HttpOnly cookies synkroniserer auth state
-- **Auth helpers:** `requireAuth()` og `getServerUser()` bruges i Server Actions
+- **Bridge:** HttpOnly cookies synkroniserer auth state sikkert
+- **Auth helpers:** `requireAuth()` verificerer auth + returnerer user
+- **Ownership pattern:** Nested Server Actions med closure access til user/post data
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 **Problem:** "Firebase Admin error"
 
@@ -1516,7 +1648,7 @@ Server (Next.js)
 
 ---
 
-## ✨ Bonus: Næste steps
+## Bonus: Næste steps
 
 Hvis du vil udvide systemet:
 

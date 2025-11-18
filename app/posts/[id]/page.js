@@ -1,25 +1,28 @@
-import PostCard from "@/components/PostCard";
 import DeletePostButton from "@/components/DeletePostButton";
+import PostCard from "@/components/PostCard";
+import { requireAuth } from "@/lib/auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import styles from "./page.module.css";
-import { getServerUser, requireAuth } from "@/lib/auth";
 
 export default async function PostPage({ params }) {
-  await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
+  const user = await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
 
   const { id } = await params;
   const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
 
-  // Get current user on server
-  const user = await getServerUser();
   const isOwner = user && user.uid === post.uid;
 
   // Server Action to handle post deletion
   async function deletePost() {
     "use server"; // Mark as server action - runs on server only
+
+    if (!isOwner) {
+      redirect("/posts"); // ❌ Forhindre sletning af andres posts
+    }
+
     const response = await fetch(url, {
       method: "DELETE"
     });
