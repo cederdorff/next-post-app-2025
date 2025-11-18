@@ -24,6 +24,25 @@ Denne guide viser hvordan du implementerer Firebase Authentication i din Next.js
 
 ---
 
+## Før du starter: Opret en ny branch
+
+**VIGTIGT:** Lav denne implementation på en ny branch, så du kan bevare din `main` branch som den er.
+
+```bash
+# Sørg for du er på main branch
+git checkout main
+
+# Opret og skift til en ny branch
+git checkout -b firebase-authentication
+
+# Verificer du er på den nye branch
+git branch
+```
+
+Nu arbejder du på `firebase-authentication` branchen, og din `main` branch forbliver uændret.
+
+---
+
 ## Del 1: Installation og Setup
 
 ### 1.1 Installer Firebase pakker
@@ -113,6 +132,12 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nDINPRIVATEKEYHER\n-----END PR
 
 ## Del 3: Firebase Setup
 
+I denne del opretter du tre vigtige filer der håndterer Firebase på client-side og server-side:
+
+- **`lib/firebase.js`** - Client-side Firebase (bruges til login/signup UI)
+- **`lib/firebase-admin.js`** - Server-side Firebase Admin SDK (verificerer tokens)
+- **`lib/auth.js`** - Helper functions til at tjekke auth i Server Components
+
 ### 3.1 Opret `lib/firebase.js`
 
 ```javascript
@@ -201,6 +226,13 @@ export async function requireAuth() {
 ---
 
 ## Del 4: Auth Context
+
+Auth Context holder styr på brugerens login-status i hele appen:
+
+- **`AuthContext`** - React Context der deler auth state med alle components
+- **`onAuthStateChanged`** - Lytter til login/logout events fra Firebase
+- **`setAuthToken`** - Server Action der gemmer Firebase token i HttpOnly cookie
+- **`AuthProvider`** - Wrapper der giver alle components adgang til auth
 
 ### 4.1 Opret `contexts/AuthContext.js`
 
@@ -293,14 +325,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        **
         <AuthProvider>
-          **
           <Nav />
           {children}
-          **
         </AuthProvider>
-        **
       </body>
     </html>
   );
@@ -310,6 +338,13 @@ export default function RootLayout({ children }) {
 ---
 
 ## Del 5: Login/Signup Sider
+
+Nu opretter du login og signup sider hvor brugere kan:
+
+- **Signup** - Oprette ny konto med email, password, navn og titel
+- **Signin** - Logge ind med eksisterende konto
+- **Error handling** - Brugervenlige fejlbeskeder på dansk/engelsk
+- **Redirect** - Automatisk redirect til `/posts` efter succesfuldt login
 
 ### 5.1 Opret `app/signin/page.js`
 
