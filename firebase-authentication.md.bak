@@ -77,7 +77,7 @@ NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=dit-projekt.appspot.com
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
 NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef
 
-# Firebase Admin SDK (Server-side) - tilføjes nu
+# Firebase Admin SDK (Server-side) - tilføjes senere
 FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
@@ -85,35 +85,9 @@ FIREBASE_PRIVATE_KEY=
 
 ---
 
-## Del 2: Firebase Admin Credentials
+## Del 2: Firebase Setup
 
-### 2.1 Hent Service Account Key
-
-1. Gå til [Firebase Console](https://console.firebase.google.com/)
-2. Vælg dit projekt
-3. Klik på **Project Settings** (tandhjul-ikonet)
-4. Gå til fanen **Service Accounts**![[Screenshot 2025-11-18 at 09.51.29.png]]
-5. Klik **Generate new private key**
-6. En JSON-fil downloades
-
-### 2.2 Tilføj credentials til `.env.local`
-
-1. Åben den downloadede JSON-fil i VS Code![[Screenshot 2025-11-18 at 09.54.23.png]]
-2. Fra den downloadede JSON-fil, tilføj disse værdier (project_id, client_email og private_key) til din `.env.local`:
-
-```env
-FIREBASE_PROJECT_ID=dit-projekt-id
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@dit-projekt.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nDINPRIVATEKEYHER\n-----END PRIVATE KEY-----\n"
-```
-
-**VIGTIGT:** Tilføj `.env.local` til `.gitignore`! Du må ikke dele dine env-filer på GitHub.
-
----
-
-## Del 3: Firebase Setup
-
-### 3.1 Opret `lib/firebase.js`
+### 2.1 Opret `lib/firebase.js`
 
 ```javascript
 import { initializeApp, getApps } from "firebase/app";
@@ -200,9 +174,9 @@ export async function requireAuth() {
 
 ---
 
-## Del 4: Auth Context
+## Del 3: Auth Context
 
-### 4.1 Opret `contexts/AuthContext.js`
+### 3.1 Opret `contexts/AuthContext.js`
 
 ```javascript
 "use client";
@@ -309,9 +283,9 @@ export default function RootLayout({ children }) {
 
 ---
 
-## Del 5: Login/Signup Sider
+## Del 4: Login/Signup Sider
 
-### 5.1 Opret `app/signin/page.js`
+### 4.1 Opret `app/signin/page.js`
 
 ```javascript
 "use client";
@@ -786,9 +760,9 @@ export default function SignUpPage() {
 
 ---
 
-## Del 6: Brugerprofiler
+## Del 5: Brugerprofiler
 
-### 6.1 Gem brugerdata i databasen ved signup
+### 5.1 Gem brugerdata i databasen ved signup
 
 Når en bruger opretter sig, skal du gemme deres navn, titel og evt. profilbillede i Realtime Database:
 
@@ -936,7 +910,7 @@ export default function ProfilePage() {
 }
 ```
 
-### 6.3 Opret `app/profile/page.module.css`
+### 5.3 Opret `app/profile/page.module.css`
 
 ```css
 .profilePage {
@@ -1059,9 +1033,9 @@ export default function ProfilePage() {
 
 ---
 
-## Del 7: Navigation med Auth
+## Del 6: Navigation med Auth
 
-### 7.1 Opdater `components/Nav.js`
+### 6.1 Opdater `components/Nav.js`
 
 **Før (main branch):** Simpel navigation uden auth
 
@@ -1167,7 +1141,7 @@ export default function Nav() {
 - ✅ Nyt `<div className={styles.authSection}>` med auth knapper
 - ✅ Vis email og "Log Out" hvis logged ind, ellers "Sign In" og "Sign Up"
 
-### 7.2 Opdater `components/Nav.module.css`
+### 6.2 Opdater `components/Nav.module.css`
 
 Erstat dine styles med:
 
@@ -1269,25 +1243,25 @@ Erstat dine styles med:
 
 ---
 
-## Del 8: Beskyt Server Actions
+## Del 7: Beskyt Server Actions
 
-### 8.1 Opdater `app/posts/create/page.js`
+### 7.1 Opdater `app/posts/create/page.js`
 
-**VIGTIGT:** Tilføj authentication til siden og brug den autentificerede brugers UID.
+**VIGTIGT:** Tilføj authentication og brug rigtig bruger-UID i oprettelse af post!
+
+**Før (main branch):**
 
 ```javascript
 import { redirect } from "next/navigation";
 import FormPost from "@/components/FormPost";
 import styles from "./page.module.css";
-import { requireAuth } from "@/lib/auth";
 
-export default async function CreatePage() {
-  const user = await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
-  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`; // Get Firebase Realtime Database URL
+export default function CreatePage() {
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
 
-  // Server Action to handle post creation
+  // Server Action nested i component
   async function createPost(formData) {
-    "use server"; // Mark as server action - runs on server only
+    "use server";
     const caption = formData.get("caption");
     const image = formData.get("image");
 
@@ -1296,8 +1270,52 @@ export default async function CreatePage() {
       body: JSON.stringify({
         caption,
         image,
-        uid: user.uid, // Associate post with the authenticated user
-        createdAt: new Date().toISOString() // Add creation timestamp
+        uid: "OPPe5jue2Ghxx3mtnxevB5FwCYe2", // ← Hardcoded! Skal ændres
+        createdAt: new Date().toISOString()
+      })
+    });
+
+    if (response.ok) {
+      redirect("/posts");
+    }
+  }
+
+  return (
+    <section className={styles.formPage}>
+      <div className={styles.container}>
+        <h1>Create New Post</h1>
+        <FormPost action={createPost} />
+      </div>
+    </section>
+  );
+}
+```
+
+**Efter:**
+
+```javascript
+import { redirect } from "next/navigation";
+import FormPost from "@/components/FormPost";
+import styles from "./page.module.css";
+import { requireAuth } from "@/lib/auth";
+
+export default **async** function CreatePage() {
+  **const user = await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth**
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
+
+  // Server Action to handle post creation
+  async function createPost(formData) {
+    "use server";
+    const caption = formData.get("caption");
+    const image = formData.get("image");
+
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        caption,
+        image,
+        **uid: user.uid, // ← Bruger authenticated user's UID**
+        createdAt: new Date().toISOString()
       })
     });
 
@@ -1323,89 +1341,115 @@ export default async function CreatePage() {
 - ✅ Gør component til `async function` så den kan await auth check
 - ✅ Tilføj auth check: `const user = await requireAuth().catch(() => redirect("/signin"))`
 - ✅ Server Action forbliver nested (har adgang til `user` og `url` via closure)
-- ✅ Brug `uid: user.uid` for at associere posten med den autentificerede bruger, som opretter den nye post.
+- ✅ Skift hardcoded UID til `uid: user.uid` (bruger den autentificerede brugers ID)
 
-### 8.2 Opdater `app/posts/[id]/update/page.js`
+      if (response.ok) {
+        redirect("/posts");
+      }
+
+  }
+
+  return (
+  <section className={styles.formPage}>
+  <div className={styles.container}>
+  <h1>Create New Post</h1>
+  <FormPost action={createPost} />
+  </div>
+  </section>
+  );
+  }
+
+````
+
+**Vigtige ændringer:**
+
+- ✅ Import `requireAuth` fra `@/lib/auth`
+- ✅ Tilføj auth check i component: `const user = await requireAuth().catch(() => redirect("/signin"))`
+- ✅ Server Action forbliver nested i component (har adgang til `user` og `url` via closure)
+- ✅ Skift `uid: "hardcoded"` til `uid: user.uid`
+
+### 7.2 Opdater `app/posts/[id]/update/page.js`
 
 ```javascript
 import FormPost from "@/components/FormPost";
 import { redirect } from "next/navigation";
-import styles from "./page.module.css";
 import { requireAuth } from "@/lib/auth";
+import styles from "./page.module.css";
 
-export default async function UpdatePage({ params }) {
+async function updatePost(id, formData) {
+  "use server";
+
   await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
 
+  const caption = formData.get("caption");
+  const image = formData.get("image");
+
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
+  const response = await fetch(url, {
+    method: "PATCH",
+    body: JSON.stringify({ caption, image })
+  });
+
+  if (response.ok) {
+    redirect(`/posts/${id}`);
+  }
+}
+
+export default async function UpdatePage({ params }) {
   const { id } = await params;
   const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
 
-  // Server Action to handle post update
-  async function updatePost(formData) {
-    "use server"; // Mark as server action - runs on server only
-    const caption = formData.get("caption");
-    const image = formData.get("image");
-
-    const response = await fetch(url, {
-      method: "PATCH",
-      body: JSON.stringify({ caption, image })
-    });
-
-    if (response.ok) {
-      redirect(`/posts/${id}`);
-    }
-  }
+  const updatePostWithId = updatePost.bind(null, id);
 
   return (
     <section className={styles.formPage}>
       <div className={styles.container}>
         <h1>Update Post</h1>
-        <FormPost action={updatePost} post={post} />
+        <FormPost action={updatePostWithId} post={post} />
       </div>
     </section>
   );
 }
-```
+````
 
-**Vigtige ændringer:**
-
-- ✅ Import `requireAuth` fra `@/lib/auth`
-- ✅ Auth check med `await requireAuth()` i starten af component
-- ✅ Server Action forbliver nested (har adgang til `url` og `id` via closure)
-
-### 8.3 Opdater `app/posts/[id]/page.js`
+### 7.3 Opdater `app/posts/[id]/page.js`
 
 ```javascript
 import PostCard from "@/components/PostCard";
 import DeletePostButton from "@/components/DeletePostButton";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { requireAuth, getServerUser } from "@/lib/auth";
 import styles from "./page.module.css";
-import { getServerUser, requireAuth } from "@/lib/auth";
 
-export default async function PostPage({ params }) {
+async function deletePost(id) {
+  "use server";
+
   await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
 
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
+  const response = await fetch(url, {
+    method: "DELETE"
+  });
+
+  if (response.ok) {
+    redirect("/posts");
+  }
+}
+
+export default async function PostPage({ params }) {
   const { id } = await params;
   const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
-  const response = await fetch(url);
+  const response = await fetch(url, { cache: "no-store" });
   const post = await response.json();
 
   // Get current user on server
   const user = await getServerUser();
   const isOwner = user && user.uid === post.uid;
 
-  // Server Action to handle post deletion
-  async function deletePost() {
-    "use server"; // Mark as server action - runs on server only
-    const response = await fetch(url, {
-      method: "DELETE"
-    });
-    if (response.ok) {
-      redirect("/posts");
-    }
-  }
+  const deletePostWithId = deletePost.bind(null, id);
 
   return (
     <main className={styles.postPage}>
@@ -1414,9 +1458,10 @@ export default async function PostPage({ params }) {
         <div className={styles.postCard}>
           <PostCard post={post} />
         </div>
+
         {isOwner && (
           <div className={styles.btns}>
-            <DeletePostButton deleteAction={deletePost} />
+            <DeletePostButton deleteAction={deletePostWithId} />
             <Link href={`/posts/${id}/update`}>
               <button className={styles.btnUpdate}>Update post</button>
             </Link>
@@ -1428,12 +1473,58 @@ export default async function PostPage({ params }) {
 }
 ```
 
-**Vigtige ændringer:**
+### 7.4 Tilføj styles til `app/posts/[id]/page.module.css`
 
-- ✅ Auth check med `await requireAuth()` i starten af component
-- ✅ `deletePost` er nested Server Action (har adgang til `url` via closure)
-- ✅ Ingen `.bind()` nødvendig - `deletePost` kan bruge `url` direkte
-- ✅ `isOwner` check sikrer kun post-ejeren ser delete/update knapper
+```css
+.btns {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.btnUpdate {
+  padding: 12px 24px;
+  background-color: #4a5568;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btnUpdate:hover {
+  background-color: #2d3748;
+}
+```
+
+---
+
+## Del 8: Firebase Admin Credentials
+
+### 8.1 Hent Service Account Key
+
+1. Gå til [Firebase Console](https://console.firebase.google.com/)
+2. Vælg dit projekt
+3. Klik på **Project Settings** (tandhjul-ikonet)
+4. Gå til fanen **Service Accounts**
+5. Klik **Generate new private key**
+6. En JSON-fil downloades
+
+### 8.2 Tilføj credentials til `.env.local`
+
+Fra den downloadede JSON-fil:
+
+```env
+FIREBASE_PROJECT_ID=dit-projekt-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@dit-projekt.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nDINPRIVATEKEYHER\n-----END PRIVATE KEY-----\n"
+```
+
+**VIGTIGT:** Tilføj `.env.local` til `.gitignore`!
 
 ---
 

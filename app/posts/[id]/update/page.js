@@ -1,8 +1,11 @@
 import FormPost from "@/components/FormPost";
 import { redirect } from "next/navigation";
 import styles from "./page.module.css";
+import { requireAuth } from "@/lib/auth";
 
 export default async function UpdatePage({ params }) {
+  await requireAuth().catch(() => redirect("/signin")); // ← Beskyt med auth
+
   const { id } = await params;
   const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
