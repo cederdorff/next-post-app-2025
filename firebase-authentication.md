@@ -1,6 +1,6 @@
 # Firebase Authentication Guide
 
-Denne guide viser hvordan du implementerer Firebase Authentication i din Next.js post app.
+Denne guide viser hvordan du implementerer professionel Firebase Authentication i din Next.js post app.
 
 ## 📋 Oversigt
 
@@ -35,24 +35,10 @@ npm install firebase firebase-admin
 ### 1.2 Opret Firebase projekt
 
 1. Gå til [Firebase Console](https://console.firebase.google.com/)
-2. Klik **Add project**![[Screenshot 2025-11-18 at 08.55.39.png]]
+2. Klik **Add project**
 3. Følg setup-guiden
-	1. Fravælg Analytics
-4. Gå til "Realtime Database" og "Create Database"![[Screenshot 2025-11-18 at 08.58.00.png]]
-	1. Vælg database
-	2. Vælg "Start in Test mode" og klik "Enable"
-5. Importer data til din Realtime Database. 
-	1. Brug følgende JSON-data: https://github.com/cederdorff/race/blob/master/data/postsUsersObject.json
-	2. Download Raw File så den ligger lokalt på din maskine![[Screenshot 2025-11-18 at 09.01.42.png]]
-	3. Importer nu JSON-filen:![[Screenshot 2025-11-18 at 09.03.21.png]]
-	4. Og kontroller at du har data:![[Screenshot 2025-11-18 at 09.03.48.png]]
-	5. Test at du kan tilgå data:
-		1. https://din-egen-firebase-database-url.com/**posts.json**
-		![[Screenshot 2025-11-18 at 09.05.35.png]]
-		2.  https://din-egen-firebase-database-url.com/**users.json**
-		![[Screenshot 2025-11-18 at 09.06.03.png]]
-6. I Project Overview → "Project Settings" → Klik **Web** ikonet (`</>`)![[Screenshot 2025-11-18 at 09.07.41.png]]
-7. Registrer din app og kopier config, så du om lidt kan kopiere værdierne.![[Screenshot 2025-11-18 at 09.08.38.png]]
+4. I Project Overview → Klik **Web** ikonet (`</>`)
+5. Registrer din app og kopier config
 
 ### 1.3 Aktiver Email/Password Authentication
 
@@ -63,8 +49,6 @@ npm install firebase firebase-admin
 5. Klik **Save**
 
 ### 1.4 Tilføj Firebase config til `.env.local`
-1. Opret en .env.local i roden af dit Next projekt. '
-2. Tilføj variabler/værdierne fra din firebase configuration (step 1.2). Indsæt værdierne så de passer:
 
 ```env
 # Firebase Configuration (Client-side)
@@ -81,7 +65,6 @@ FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
 ```
-
 
 ---
 
@@ -267,10 +250,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        **<AuthProvider>**
+        <AuthProvider>
           <Nav />
           {children}
-        **</AuthProvider>**
+        </AuthProvider>
       </body>
     </html>
   );
@@ -761,7 +744,8 @@ export default function SignUpPage() {
 ### 5.1 Gem brugerdata i databasen ved signup
 
 Når en bruger opretter sig, skal du gemme deres navn, titel og evt. profilbillede i Realtime Database:
-- Kontroller koden - du har allerede indsat denne stump i `app/signup/page.js`, efter succesfuld signup:
+
+I `app/signup/page.js`, efter succesfuld signup:
 
 ```javascript
 const userCredential = await signUp(email, password);
@@ -905,6 +889,142 @@ export default function ProfilePage() {
 }
 ```
 
+### 5.3 Opret `app/profile/page.module.css`
+
+```css
+.profilePage {
+  min-height: 100vh;
+  padding: 80px 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 500px;
+  width: 100%;
+  padding: 40px;
+  background-color: var(--foreground);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.container h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  text-align: center;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.error {
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 14px;
+}
+
+.success {
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 8px;
+  color: #10b981;
+  font-size: 14px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  background-color: var(--background);
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.imagePreview {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.imagePreview img {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 12px 24px;
+  margin-top: 8px;
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: #7c3aed;
+}
+
+.submitButton:disabled {
+  background-color: rgba(139, 92, 246, 0.5);
+  cursor: not-allowed;
+}
+```
+
+### 5.4 Tilføj Profile-link i navigationen
+
+I `components/Nav.js`, vis et link til `/profile` når brugeren er logget ind:
+
+```javascript
+{user ? (
+  <>
+    <span className={styles.userEmail}>{user.email}</span>
+    <Link href="/profile" className={`${styles.authButton} ${styles.profileButton}`}>Profile</Link>
+    <button onClick={handleLogout} className={`${styles.authButton} ${styles.logOutButton}`}>Log Out</button>
+  </>
+) : (
+  // ...existing code...
+)}
+```
 
 ---
 
@@ -1018,7 +1138,7 @@ export default function Nav() {
 
 ### 6.2 Opdater `components/Nav.module.css`
 
-**Tilføj** disse nye styles:
+Tilføj disse nye styles:
 
 ```css
 .authSection {

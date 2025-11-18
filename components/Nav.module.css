@@ -4,12 +4,17 @@
   left: 0;
   right: 0;
   display: flex;
-  justify-content: center;
-  gap: 32px;
-  padding: 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
   background-color: var(--foreground);
   border-bottom: 1px solid var(--border-color);
   z-index: 100;
+}
+
+.navLinks {
+  display: flex;
+  gap: 16px;
 }
 
 .navLink {
@@ -67,6 +72,15 @@
 
 .signUpButton:hover {
   background-color: #059669;
+}
+
+.profileButton {
+  background-color: #8b5cf6;
+  color: white;
+}
+
+.profileButton:hover {
+  background-color: #7c3aed;
 }
 
 .logOutButton {
