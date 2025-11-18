@@ -1,0 +1,66 @@
+.profilePage {
+  min-height: 100vh;
+  padding: 80px 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 500px;
+  width: 100%;
+  padding: 40px;
+  background-color: var(--foreground);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.container h1 {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  text-align: center;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.infoGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.infoGroup label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #999;
+}
+
+.infoGroup p {
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.userId {
+  font-family: monospace;
+  font-size: 14px;
+  color: #666;
+}
+
+.imagePreview {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.imagePreview img {
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}

@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import FormPost from "@/components/FormPost";
 import styles from "./page.module.css";
+import { requireAuth } from "@/lib/auth";
 
-export default function CreatePage() {
+export default async function CreatePage() {
+  const user = await requireAuth(); // Require authentication
   const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`; // Get Firebase Realtime Database URL
 
   // Server Action to handle post creation
@@ -16,7 +18,7 @@ export default function CreatePage() {
       body: JSON.stringify({
         caption,
         image,
-        uid: "OPPe5jue2Ghxx3mtnxevB5FwCYe2", // TODO: Replace with actual user ID from auth
+        uid: user.uid, // Use authenticated user's ID
         createdAt: new Date().toISOString() // Add creation timestamp
       })
     });

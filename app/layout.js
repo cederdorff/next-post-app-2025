@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/components/Nav";
+import { auth } from "@/auth";
 
 // Configure Google Fonts with CSS variables
 const geistSans = Geist({
@@ -20,11 +21,13 @@ export const metadata = {
 };
 
 // Root Layout - wraps all pages
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = await auth();
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Nav />
+        <Nav session={session} />
         {children}
       </body>
     </html>
