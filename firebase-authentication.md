@@ -35,10 +35,24 @@ npm install firebase firebase-admin
 ### 1.2 Opret Firebase projekt
 
 1. Gå til [Firebase Console](https://console.firebase.google.com/)
-2. Klik **Add project**
+2. Klik **Add project**![[Screenshot 2025-11-18 at 08.55.39.png]]
 3. Følg setup-guiden
-4. I Project Overview → Klik **Web** ikonet (`</>`)
-5. Registrer din app og kopier config
+	1. Fravælg Analytics
+4. Gå til "Realtime Database" og "Create Database"![[Screenshot 2025-11-18 at 08.58.00.png]]
+	1. Vælg database
+	2. Vælg "Start in Test mode" og klik "Enable"
+5. Importer data til din Realtime Database. 
+	1. Brug følgende JSON-data: https://github.com/cederdorff/race/blob/master/data/postsUsersObject.json
+	2. Download Raw File så den ligger lokalt på din maskine![[Screenshot 2025-11-18 at 09.01.42.png]]
+	3. Importer nu JSON-filen:![[Screenshot 2025-11-18 at 09.03.21.png]]
+	4. Og kontroller at du har data:![[Screenshot 2025-11-18 at 09.03.48.png]]
+	5. Test at du kan tilgå data:
+		1. https://din-egen-firebase-database-url.com/**posts.json**
+		![[Screenshot 2025-11-18 at 09.05.35.png]]
+		2.  https://din-egen-firebase-database-url.com/**users.json**
+		![[Screenshot 2025-11-18 at 09.06.03.png]]
+6. I Project Overview → "Project Settings" → Klik **Web** ikonet (`</>`)![[Screenshot 2025-11-18 at 09.07.41.png]]
+7. Registrer din app og kopier config, så du om lidt kan kopiere værdierne.![[Screenshot 2025-11-18 at 09.08.38.png]]
 
 ### 1.3 Aktiver Email/Password Authentication
 
@@ -49,6 +63,8 @@ npm install firebase firebase-admin
 5. Klik **Save**
 
 ### 1.4 Tilføj Firebase config til `.env.local`
+1. Opret en .env.local i roden af dit Next projekt. '
+2. Tilføj variabler/værdierne fra din firebase configuration (step 1.2). Indsæt værdierne så de passer:
 
 ```env
 # Firebase Configuration (Client-side)
@@ -65,6 +81,7 @@ FIREBASE_PROJECT_ID=
 FIREBASE_CLIENT_EMAIL=
 FIREBASE_PRIVATE_KEY=
 ```
+
 
 ---
 
@@ -250,10 +267,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <AuthProvider>
+        **<AuthProvider>**
           <Nav />
           {children}
-        </AuthProvider>
+        **</AuthProvider>**
       </body>
     </html>
   );
@@ -744,8 +761,7 @@ export default function SignUpPage() {
 ### 5.1 Gem brugerdata i databasen ved signup
 
 Når en bruger opretter sig, skal du gemme deres navn, titel og evt. profilbillede i Realtime Database:
-
-I `app/signup/page.js`, efter succesfuld signup:
+- Kontroller koden - du har allerede indsat denne stump i `app/signup/page.js`, efter succesfuld signup:
 
 ```javascript
 const userCredential = await signUp(email, password);
@@ -889,21 +905,6 @@ export default function ProfilePage() {
 }
 ```
 
-### 5.3 Tilføj Profile-link i navigationen
-
-I `components/Nav.js`, vis et link til `/profile` når brugeren er logget ind:
-
-```javascript
-{user ? (
-  <>
-    <span className={styles.userEmail}>{user.email}</span>
-    <Link href="/profile" className={`${styles.authButton} ${styles.profileButton}`}>Profile</Link>
-    <button onClick={handleLogout} className={`${styles.authButton} ${styles.logOutButton}`}>Log Out</button>
-  </>
-) : (
-  // ...existing code...
-)}
-```
 
 ---
 
@@ -1017,7 +1018,7 @@ export default function Nav() {
 
 ### 6.2 Opdater `components/Nav.module.css`
 
-Tilføj disse nye styles:
+**Tilføj** disse nye styles:
 
 ```css
 .authSection {
