@@ -10,7 +10,7 @@ interface PostPageProps {
 
 export default async function PostPage({ params }: PostPageProps) {
   const { id } = await params;
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post: Post = await response.json();
 

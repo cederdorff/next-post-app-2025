@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import FormPost from "@/components/FormPost";
 
 export default function CreatePage() {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`; // Get Firebase Realtime Database URL
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`; // Get Firebase Realtime Database URL
 
   // Server Action to handle post creation
   async function createPost(formData: FormData) {

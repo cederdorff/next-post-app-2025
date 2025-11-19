@@ -7,7 +7,7 @@ interface UserAvatarProps {
 }
 
 export default async function UserAvatar({ uid }: UserAvatarProps) {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/users/${uid}.json`;
 
   // Fetch user data - runs on server, not sent to client
   const response = await fetch(url);

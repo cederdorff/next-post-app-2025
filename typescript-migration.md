@@ -519,7 +519,7 @@ interface UserAvatarProps {
 }
 
 export default async function UserAvatar({ uid }: UserAvatarProps) {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/users/${uid}.json`;
 
   // Fetch user data - runs on server, not sent to client
   const response = await fetch(url);
@@ -803,7 +803,7 @@ import { Post } from "@/types/types";
 
 // Server Component
 export default async function Home() {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
   const response = await fetch(url);
   const dataObject = await response.json();
 
@@ -836,7 +836,7 @@ import { redirect } from "next/navigation";
 import FormPost from "@/components/FormPost";
 
 export default function CreatePage() {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
 
   // Server Action to handle post creation
   async function createPost(formData: FormData) {
@@ -885,7 +885,7 @@ interface PostPageProps {
 
 export default async function PostPage({ params }: PostPageProps) {
   const { id } = await params;
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post: Post = await response.json();
 
@@ -934,7 +934,7 @@ interface UpdatePageProps {
 
 export default async function UpdatePage({ params }: UpdatePageProps) {
   const { id } = await params;
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post: Post = await response.json();
 

@@ -58,7 +58,7 @@ Efter denne opgave kan du:
    - Kopier indholdet fra `.env.example`
    - Tilføj Firebase database URL (får du fra underviseren)
    ```
-   NEXT_PUBLIC_FB_DB_URL=https://[DATABASE_URL].firebaseio.com
+   NEXT_PUBLIC_FIREBASE_DATABASE_URL=https://[DATABASE_URL].firebaseio.com
    ```
    - Genstart dev server (`Ctrl+C` og `npm run dev`)
    - Test at data hentes korrekt
