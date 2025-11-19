@@ -3,6 +3,17 @@ import { updateUser } from "@/lib/firebase-users";
 import { revalidatePath } from "next/cache";
 import Image from "next/image";
 import styles from "./page.module.css";
+import { useFormStatus } from "react-dom";
+
+function SubmitButton() {
+  "use client";
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending} className={styles.submitButton}>
+      {pending ? "Saving..." : "Save Changes"}
+    </button>
+  );
+}
 
 export default async function ProfilePage() {
   const user = await requireAuth();
@@ -69,9 +80,7 @@ export default async function ProfilePage() {
             <p>{user.email}</p>
           </div>
 
-          <button type="submit" className={styles.submitButton}>
-            Save Changes
-          </button>
+          <SubmitButton />
         </form>
       </div>
     </main>
