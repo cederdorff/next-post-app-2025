@@ -514,81 +514,81 @@ export default async function ProfilePage() {
 ## Fil Struktur
 
 ```
-your-app/
-├── auth.js                      # Auth.js configuration
+din-app/
+├── auth.js                      # Auth.js konfiguration
 ├── app/
 │   ├── api/
 │   │   └── auth/
 │   │       └── [...nextauth]/
 │   │           └── route.js     # Auth API routes
 │   ├── signin/
-│   │   ├── page.js              # Sign in page
+│   │   ├── page.js              # Log ind side
 │   │   └── page.module.css
 │   ├── profile/
-│   │   ├── page.js              # Profile edit page
+│   │   ├── page.js              # Profil redigerings side
 │   │   └── page.module.css
-│   └── layout.js                # Root layout with session
+│   └── layout.js                # Root layout med session
 ├── lib/
 │   ├── auth-actions.js          # Auth Server Actions
-│   └── firebase-users.js        # Firebase user functions
+│   └── firebase-users.js        # Firebase bruger funktioner
 └── components/
-    └── Nav.js                   # Navigation with auth state
+    └── Nav.js                   # Navigation med auth state
 ```
 
-## Key Concepts
+## Nøgle Koncepter
 
-### Why Two Auth Files?
+### Hvorfor To Auth Filer?
 
-- **`/auth.js`**: NextAuth configuration (providers, callbacks)
-- **`/lib/auth-actions.js`**: Helper functions for use in your app
+- **`/auth.js`**: NextAuth konfiguration (providers, callbacks)
+- **`/lib/auth-actions.js`**: Hjælpe funktioner til brug i din app
 
-This separation keeps configuration separate from application logic.
+Denne adskillelse holder konfiguration adskilt fra applikationslogik.
 
-### Session Management
+### Session Håndtering
 
-The session callback fetches fresh data from Firebase on **every request**. This means:
+Session callback'en henter friske data fra Firebase ved **hver request**. Dette betyder:
 
-- ✅ Profile updates appear immediately
-- ✅ Always shows current user data
-- ⚠️ More database queries (but Firebase is fast!)
+- ✅ Profil opdateringer vises med det samme
+- ✅ Viser altid aktuelle brugerdata
+- ⚠️ Flere database forespørgsler (men Firebase er hurtig!)
 
 ### Server Actions
 
-All auth actions use `"use server"` directive:
+Alle auth actions bruger `"use server"` direktiv:
 
-- `handleSignIn()` - Triggers GitHub OAuth flow
-- `handleSignOut()` - Signs user out and redirects
-- `requireAuth()` - Protects pages, redirects if not authenticated
+- `handleSignIn()` - Starter GitHub OAuth flow
+- `handleSignOut()` - Logger bruger ud og redirecter
+- `requireAuth()` - Beskytter sider, redirecter hvis ikke autentificeret
 
-## Common Issues
+## Almindelige Problemer
 
 ### "Module not found: @/auth"
 
-Make sure `auth.js` is in the root directory, not in `/lib` or `/app`.
+Sørg for at `auth.js` er i root mappen, ikke i `/lib` eller `/app`.
 
 ### "Can't define inline Server Actions in Client Components"
 
-All Server Actions must be in files with `"use server"` at the top or in separate Server Component files.
+Alle Server Actions skal være i filer med `"use server"` i toppen eller i separate Server Component filer.
 
-### Session data not updating after profile edit
+### Session data opdateres ikke efter profil redigering
 
-Make sure you're calling `revalidatePath("/")` in your update function to refresh the layout.
+Sørg for at du kalder `revalidatePath("/")` i din update funktion for at genindlæse layout.
 
-### GitHub OAuth callback error
+### GitHub OAuth callback fejl
 
-Verify your callback URL in GitHub OAuth settings matches exactly:
+Verificer at din callback URL i GitHub OAuth indstillinger matcher præcist:
 `http://localhost:3000/api/auth/callback/github`
 
-## Next Steps
+## Næste Skridt
 
-- Add more OAuth providers (Google, Facebook, etc.)
-- Implement role-based access control
-- Add email verification
-- Create admin dashboard
-- Add two-factor authentication
+- Tilføj flere OAuth providers (Google, Facebook, osv.)
+- Implementer rolle-baseret adgangskontrol
+- Tilføj email verificering
+- Opret admin dashboard
+- Tilføj to-faktor autentificering
 
-## Resources
+## Ressourcer
 
-- [Auth.js Documentation](https://authjs.dev)
+- [Auth.js Dokumentation](https://authjs.dev)
 - [Next.js Authentication](https://nextjs.org/docs/app/building-your-application/authentication)
 - [Firebase Realtime Database](https://firebase.google.com/docs/database)
