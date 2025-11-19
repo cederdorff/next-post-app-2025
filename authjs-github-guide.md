@@ -457,27 +457,27 @@ export default async function ProfilePage() {
   return (
     <main className={styles.profilePage}>
       <div className={styles.container}>
-        <h1>Edit Profile</h1>
+        <h1>Rediger Profil</h1>
 
         <form action={updateProfile} className={styles.form}>
           {user.image && (
             <div className={styles.imagePreview}>
-              <Image src={user.image} alt={user.name || "Profile"} width={100} height={100} />
+              <Image src={user.image} alt={user.name || "Profil"} width={100} height={100} />
             </div>
           )}
 
           <div className={styles.formGroup}>
-            <label htmlFor="name">Name</label>
-            <input type="text" id="name" name="name" defaultValue={user.name || ""} required placeholder="Your name" />
+            <label htmlFor="name">Navn</label>
+            <input type="text" id="name" name="name" defaultValue={user.name || ""} required placeholder="Dit navn" />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="title">Title</label>
-            <input type="text" id="title" name="title" defaultValue={user.title || ""} placeholder="Your title" />
+            <label htmlFor="title">Titel</label>
+            <input type="text" id="title" name="title" defaultValue={user.title || ""} placeholder="Din titel" />
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="image">Image URL</label>
+            <label htmlFor="image">Billede URL</label>
             <input
               type="url"
               id="image"
@@ -493,7 +493,7 @@ export default async function ProfilePage() {
           </div>
 
           <button type="submit" className={styles.submitButton}>
-            Save Changes
+            Gem Ændringer
           </button>
         </form>
       </div>
@@ -502,16 +502,16 @@ export default async function ProfilePage() {
 }
 ```
 
-## Testing the Implementation
+## Test Implementeringen
 
-1. **Start your dev server**: `npm run dev`
-2. **Test sign in**: Go to `/signin` and click "Sign in with GitHub"
-3. **Verify user creation**: Check Firebase to see if user was created
-4. **Test profile**: Go to `/profile` and update your information
-5. **Verify updates**: Changes should appear immediately in Nav
-6. **Test protected routes**: Try accessing `/posts/create` while signed out
+1. **Start din dev server**: `npm run dev`
+2. **Test log ind**: Gå til `/signin` og klik "Log ind med GitHub"
+3. **Verificer bruger oprettelse**: Tjek Firebase for at se om brugeren blev oprettet
+4. **Test profil**: Gå til `/profile` og opdater dine informationer
+5. **Verificer opdateringer**: Ændringer skulle vises med det samme i Nav
+6. **Test beskyttede routes**: Prøv at tilgå `/posts/create` mens du er logget ud
 
-## File Structure
+## Fil Struktur
 
 ```
 your-app/
