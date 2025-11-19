@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 export default async function UpdatePage({ params }) {
   const { id } = await params;
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts/${id}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts/${id}.json`;
   const response = await fetch(url);
   const post = await response.json();
 

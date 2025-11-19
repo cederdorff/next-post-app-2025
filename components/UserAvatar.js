@@ -2,7 +2,7 @@
 import Image from "next/image";
 
 export default async function UserAvatar({ uid }) {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/users/${uid}.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/users/${uid}.json`;
 
   // Fetch user data - runs on server, not sent to client
   const response = await fetch(url);

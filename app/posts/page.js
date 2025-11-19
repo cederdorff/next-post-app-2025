@@ -3,7 +3,7 @@ import Link from "next/link";
 
 // Server Component
 export default async function Home() {
-  const url = `${process.env.NEXT_PUBLIC_FB_DB_URL}/posts.json`;
+  const url = `${process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL}/posts.json`;
   const response = await fetch(url);
   const dataObject = await response.json();
 
