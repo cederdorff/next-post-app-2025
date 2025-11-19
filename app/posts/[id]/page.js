@@ -3,7 +3,7 @@ import DeletePostButton from "@/components/DeletePostButton";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import styles from "./page.module.css";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth-actions";
 
 export default async function PostPage({ params }) {
   const user = await requireAuth(); // Require authentication

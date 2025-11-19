@@ -27,7 +27,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <Nav session={session} />
+        <Nav user={session?.user} />
         {children}
       </body>
     </html>

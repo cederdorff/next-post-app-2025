@@ -24,10 +24,40 @@
   letter-spacing: -0.5px;
 }
 
-.profileInfo {
+.form {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  background-color: var(--background);
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 .infoGroup {
@@ -47,12 +77,6 @@
   color: var(--text-primary);
 }
 
-.userId {
-  font-family: monospace;
-  font-size: 14px;
-  color: #666;
-}
-
 .imagePreview {
   display: flex;
   justify-content: center;
@@ -63,4 +87,22 @@
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--border-color);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 12px 24px;
+  margin-top: 8px;
+  background-color: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+  background-color: #7c3aed;
 }

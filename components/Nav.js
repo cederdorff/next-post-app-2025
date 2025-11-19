@@ -1,12 +1,12 @@
 // Client Component - needed for usePathname hook
-"use client"; // Mark as client component
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { handleSignOut } from "@/app/auth-actions";
+import { handleSignOut } from "@/lib/auth-actions";
 import styles from "./Nav.module.css";
 
-export default function Nav({ session }) {
+export default function Nav({ user }) {
   // Get current pathname to highlight active link
   const pathname = usePathname();
 
@@ -19,7 +19,7 @@ export default function Nav({ session }) {
         <Link href="/posts" className={`${styles.navLink} ${pathname === "/posts" ? styles.active : ""}`}>
           Posts
         </Link>
-        {session && (
+        {user && (
           <Link
             href="/posts/create"
             className={`${styles.navLink} ${pathname === "/posts/create" ? styles.active : ""}`}>
@@ -29,9 +29,9 @@ export default function Nav({ session }) {
       </div>
 
       <div className={styles.authSection}>
-        {session ? (
+        {user ? (
           <>
-            <span className={styles.userEmail}>{session.user.name || session.user.email}</span>
+            <span className={styles.userEmail}>{user.name || user.email}</span>
             <Link href="/profile" className={`${styles.authButton} ${styles.profileButton}`}>
               Profile
             </Link>

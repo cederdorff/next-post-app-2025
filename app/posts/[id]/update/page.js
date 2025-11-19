@@ -1,7 +1,7 @@
 import FormPost from "@/components/FormPost";
 import { redirect } from "next/navigation";
 import styles from "./page.module.css";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth-actions";
 
 export default async function UpdatePage({ params }) {
   const user = await requireAuth(); // Require authentication

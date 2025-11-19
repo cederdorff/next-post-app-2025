@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import { getUserByEmail, createUser } from "@/lib/firebase-users";
+import { redirect } from "next/navigation";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -10,28 +11,38 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     })
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      // Check if user exists in Firebase
-      console.log(user);
-
+    async signIn({ user }) {
       const existingUser = await getUserByEmail(user.email);
+
       if (!existingUser) {
-        // Create new user in Firebase
-        const firebaseUserId = await createUser({
+        await createUser({
           id: user.id,
           email: user.email,
           name: user.name,
           image: user.image
         });
-        console.log("New user created in Firebase:", firebaseUserId);
       }
 
-      return true; // Allow sign in
+      return true;
+    },
+    async jwt({ token, user }) {
+      if (user) token.email = user.email;
+      return token;
     },
     async session({ session, token }) {
-      if (token?.sub) {
-        session.user.id = token.sub;
+      if (token.email) {
+        const firebaseUser = await getUserByEmail(token.email);
+        if (firebaseUser) {
+          session.user = {
+            uid: firebaseUser.id,
+            email: firebaseUser.mail,
+            name: firebaseUser.name,
+            image: firebaseUser.image,
+            title: firebaseUser.title
+          };
+        }
       }
+
       return session;
     }
   },

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import FormPost from "@/components/FormPost";
 import styles from "./page.module.css";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth-actions";
 
 export default async function CreatePage() {
   const user = await requireAuth(); // Require authentication
