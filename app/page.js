@@ -1,10 +1,11 @@
+import Title from "@/components/ui/Title";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <div className="min-h-screen pt-20 pb-10 flex items-center justify-center">
       <main className="text-center max-w-[600px]">
-        <h1 className="text-[32px] font-semibold mb-4 tracking-tight text-[#ededed]">Next.js Post App</h1>
+        <Title>Next.js Post App</Title>
         <p className="text-base text-gray-400 mb-32 leading-relaxed">
           A modern post application built with Next.js 16, featuring Server Components, Server Actions, and Firebase
           integration.
